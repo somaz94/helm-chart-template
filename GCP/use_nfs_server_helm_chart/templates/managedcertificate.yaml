@@ -1,0 +1,7 @@
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: {{ include "somaz.fullname" . }}
+spec:
+  domains:
+    - {{ .Values.managedCertificate.domain }}
