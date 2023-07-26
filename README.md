@@ -3,7 +3,7 @@ This is helm chart template with ArgoCD
 
 ## AWS
 
-### File Structure
+### Structure
 
 ```bash
 └── aws
