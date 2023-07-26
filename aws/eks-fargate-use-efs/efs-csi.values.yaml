@@ -206,28 +206,28 @@ externalSecrets:
         name: SOMAZ_BASTION_PEM_KEY
 
 storageClasses:
-  - name: somaz-staticdata-efs-sc
+  - name: somaz-efs-sc
     provisioner: efs.csi.aws.com
     reclaimPolicy: Retain
 
 persistentVolumes:
-  - name: somaz-staticdata-efs-pv
+  - name: somaz-efs-pv
     storage: 5Gi
     volumeModes: FileSystem
     accessModes:
       - ReadWriteMany
     reclaimPolicy: Retain
-    storageClassName: somaz-staticdata-efs-sc
+    storageClassName: somaz-efs-sc
     driver: efs.csi.aws.com
     volumeHandle: fs-00xxxxxxxxxxxxxx # EFS ID
 
 persistentVolumeClaims:
-  - name: somaz-staticdata-efs-pvc
+  - name: somaz-efs-pvc
     accessModes:
       - ReadWriteMany
-    storageClassName: somaz-staticdata-efs-sc
+    storageClassName: somaz-efs-sc
     storage: 5Gi
-    volumeName: somaz-staticdata-persistent-storage
+    volumeName: somaz-efs-pv
     mountPath: /app/data
 
 volumes:

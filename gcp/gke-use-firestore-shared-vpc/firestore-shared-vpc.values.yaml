@@ -212,8 +212,20 @@ storageClasses:
     provisioner: filestore.csi.storage.gke.io
     reclaimPolicy: Retain
     network: projects/HOST_PROJECT_ID/global/networks/SHARED_VPC_NAME # Change your HOST_PROJECT_ID and SHARED_VPC_NAME
-    reserved_ip_range: RESERVED_IP_RANGE_NAME # firestore instance provisioning IP Range
+    reserved_ip_range: RESERVED_IP_RANGE_NAME # firestore instance provisioning IP Range 
     allowVolumeExpansion: true
+
+persistentVolumes:
+  - name: somaz-sharedvpc-fs-pv
+    storage: 5Gi
+    volumeModes: Filesystem
+    accessModes:
+      - ReadWriteMany
+    reclaimPolicy: Retain
+    storageClassName: somaz-sharedvpc-fs-sc
+    nfs:
+      path: /vol1
+      server: <filestore-ip>
 
 persistentVolumeClaims:
   - name: somaz-sharedvpc-fs-pvc
@@ -221,7 +233,7 @@ persistentVolumeClaims:
     accessModes:
       - ReadWriteMany
     storageClassName: somaz-sharedvpc-fs-sc
-    volumeName: somaz-staticdata-persistent-storage
+    volumeName: somaz-sharedvpc-fs-pv
     mountPath: /app/data
 
 volumes:

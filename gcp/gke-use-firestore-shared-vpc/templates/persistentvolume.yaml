@@ -1,0 +1,21 @@
+{{- range $persistentVolume := .Values.persistentVolumes }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ $persistentVolume.name }}
+spec:
+  capacity:
+    storage: {{ $persistentVolume.storage }}
+  volumeMode: {{ $persistentVolume.volumeMode }}
+  {{ with $persistentVolume.accessModes }}
+  accessModes:
+    {{- toYaml . | nindent 4 }}
+  {{ end }}
+  persistentVolumeReclaimPolicy: {{ $persistentVolume.reclaimPolicy }}
+  storageClassName: {{ $persistentVolume.storageClassName }}
+  nfs:
+    path: {{ $persistentVolume.nfs.path }}
+    server: {{ $persistentVolume.nfs.server }}
+---
+{{- end }}
+

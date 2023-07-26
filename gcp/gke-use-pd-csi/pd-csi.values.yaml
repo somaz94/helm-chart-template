@@ -214,13 +214,25 @@ storageClasses:
     type: pd-balanced # Choose pd-balanced or pd-ssd or pd-standard or pd-extreme (https://cloud.google.com/compute/docs/disks?hl=ko#disk-types)
     allowVolumeExpansion: true
 
+persistentVolumes:
+  - name: somaz-pd-csi-pv
+    storage: 5Gi
+    volumeModes: Filesystem
+    accessModes:
+      - ReadWriteMany
+    reclaimPolicy: Retain
+    storageClassName: somaz-pd-csi-sc
+    driver: pd.csi.storage.gke.io
+    fsType: ext4
+    volumeHandle: <Persistent Disk Name> # The name of the Google Persistent Disk  
+
 persistentVolumeClaims:
   - name: somaz-pd-csi-pvc
     storage: 5Gi
     accessModes:
       - ReadWriteMany
     storageClassName: somaz-pd-csi-sc
-    volumeName: somaz-staticdata-persistent-storage
+    volumeName: somaz-pd-csi-pv
     mountPath: /app/data
 
 volumes:

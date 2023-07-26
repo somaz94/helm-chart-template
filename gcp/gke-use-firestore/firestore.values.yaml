@@ -215,13 +215,25 @@ storageClasses:
     tier: standard # Choose standard or premium or enterprise (https://cloud.google.com/filestore/docs/service-tiers?hl=ko)
     allowVolumeExpansion: true
 
+persistentVolumes:
+  - name: somaz-defaultvpc-fs-pv
+    storage: 5Gi
+    volumeModes: Filesystem
+    accessModes:
+      - ReadWriteMany
+    reclaimPolicy: Retain
+    storageClassName: somaz-defaultvpc-fs-sc
+    nfs:
+      path: /vol1
+      server: <filestore-ip>
+
 persistentVolumeClaims:
   - name: somaz-defaultvpc-fs-pvc
     storage: 5Gi
     accessModes:
       - ReadWriteMany
     storageClassName: somaz-defaultvpc-fs-sc
-    volumeName: somaz-staticdata-persistent-storage
+    volumeName: somaz-defaultvpc-fs-pv
     mountPath: /app/data
 
 volumes:

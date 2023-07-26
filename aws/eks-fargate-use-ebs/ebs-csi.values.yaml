@@ -206,18 +206,30 @@ externalSecrets:
         name: SOMAZ_BASTION_PEM_KEY
 
 storageClasses:
-  - name: somaz-staticdata-ebs-sc
+  - name: somaz-ebs-sc
     provisioner: ebs.csi.aws.com
     reclaimPolicy: Retain
     volumeBindingMode: WaitForFirstConsumer
 
-persistentVolumeClaims:
-  - name: somaz-staticdata-ebs-pvc
-    accessModes:
-      - ReadWriteMany
-    storageClassName: somaz-staticdata-ebs-sc
+persistentVolumes:
+  - name: somaz-ebs-pv
     storage: 5Gi
-    volumeName: somaz-staticdata-persistent-storage
+    volumeModes: FileSystem
+    accessModes:
+      - ReadWriteOnce
+    reclaimPolicy: Retain
+    storageClassName: somaz-ebs-sc
+    driver: ebs.csi.aws.com
+    fsType: ext4
+    volumeHandle: <EBS_VOLUME_ID> # Replace this with your EBS volume ID
+
+persistentVolumeClaims:
+  - name: somaz-ebs-pvc
+    accessModes:
+      - ReadWriteOnce
+    storageClassName: somaz-ebs-sc
+    storage: 5Gi
+    volumeName: somaz-ebs-pv
     mountPath: /app/data
 
 volumes:
