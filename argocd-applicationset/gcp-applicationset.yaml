@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: gcp-appicationset
+spec:
+  generators:
+    - matrix:
+        generators:
+          - list:
+              elements:
+                - cluster: somaz-gke
+                  url: https://1.1.1.1 # ClusterIP
+                  values:
+                    environment: somaz
+                    project: somaz
+          - git:
+              repoURL: git@github.com:somaz94/helm-chart-template.git
+              revision: HEAD
+              directories:
+                - path: gcp/gke_use_nfs_server/* # Path
+  template:
+    metadata:
+      name: '{{values.environment}}-{{values.project}}-{{path.basename}}'
+    spec:
+      project: '{{cluster}}'
+      source:
+        repoURL: git@github.com:somaz94/helm-chart-template.git
+        targetRevision: HEAD
+        path: '{{path}}'
+        helm:
+          version: v3
+          valueFiles:
+            - '{{values.environment}}.values.yaml'
+      destination:
+        server: '{{url}}'
+        namespace: '{{values.namespace}}-{{path.basename}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ApplyOutOfSyncOnly=true
+
+

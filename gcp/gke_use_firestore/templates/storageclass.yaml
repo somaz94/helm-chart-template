@@ -1,0 +1,13 @@
+{{- range $storageClass := .Values.storageClasses }}
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: {{ $storageClass.name }}
+provisioner: {{ $storageClass.provisioner }}
+volumeBindingMode: {{ $storageClass.volumeBindingMode }}
+parameters:
+  network: {{ $storageClass.network }}
+  tier: {{ $storageClass.tier }}
+allowVolumeExpansion: {{ $storageClass.allowVolumeExpansion }}
+---
+{{- end }}

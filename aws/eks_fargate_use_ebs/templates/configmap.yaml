@@ -1,0 +1,27 @@
+{{- range $config := .Values.configs }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: {{ $config.name }}
+    namespace: {{ $config.namespace }}
+data:
+  {{- range $key, $value := $config.datas }}
+    {{ $key }}: {{ quote $value }}
+  {{- end }}
+{{- end }}
+---
+{{- if .Values.hasStaging }}
+{{- range $config := .Values.configs }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: {{ $config.name }}
+    namespace: "staging-{{ $config.namespace }}"
+data:
+  {{- range $key, $value := $config.datas }}
+    {{ $key }}: {{ quote $value }}
+  {{- end }}
+---
+{{- end }}
+{{- end }}

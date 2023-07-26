@@ -1,0 +1,14 @@
+{{- range $storageClass := .Values.storageClasses }}
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: {{ $storageClass.name }}
+provisioner: {{ $storageClass.provisioner }}
+reclaimPolicy: {{ $storageClass.reclaimPolicy }}
+parameters:
+  network: {{ $storageClass.network }}
+  connect-mode: PRIVATE_SERVICE_ACCESS
+  reserved-ip-range: {{ $storageClass.reserved_ip_range }}
+allowVolumeExpansion: {{ $storageClass.allowVolumeExpansion }}
+---
+{{- end }}

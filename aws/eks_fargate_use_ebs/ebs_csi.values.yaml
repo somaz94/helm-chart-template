@@ -1,0 +1,241 @@
+# Default values for somaz.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: 5xxxxxxxxx.dkr.ecr.ap-northeast-2.amazonaws.com/somaz # ECR Repo
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: "somaz"
+fullnameOverride: "somaz"
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 3000
+  targetPort: 3000
+
+ingress:
+  enabled: true
+  className: ""
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+    alb.ingress.kubernetes.io/backend-protocol: HTTP
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-northeast-2:5xxxxxxxxxxxx:certificate/0xxxxxx-9xxx-4xxx-9xxx-fxxxxxxxx # certificate-arn
+    alb.ingress.kuberentes.io/ssl-redirect: '443'
+    alb.ingress.kubernetes.io/group.name: 'somaz'
+    #alb.ingress.kubernetes.io/group.order: '2'
+  hosts:
+    - host: somaz.link
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+revisionHistoryLimit: 2
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+namespace: somaz
+hasStaging: false
+
+envConfig:
+  NODE_ENV: somaz
+  ENVIRONMENT: somaz
+
+sidecars:
+  enabled: true
+  containers:
+    - name: promtail
+      securityContext: {}
+      image: grafana/promtail:master
+      imagePullPolicy: IfNotPresent
+      args:
+        - "-config.file=/etc/promtail/promtail.yaml"
+        - "-client.url=http://loki.somaz.link/api/prom/push"
+      volumeMounts:
+        - name: shared-data
+          mountPath: /etc/slog
+        - name: promtail-config
+          mountPath: /etc/promtail/promtail.yaml
+          subPath: promtail.yaml
+
+configs:
+  - name: promtail-configmap
+    namespace: somaz
+    datas:
+      config.yml: |
+        client:
+          url: http://loki.somaz.link/loki/api/v1/push
+          tls_config:
+            insecure_skip_verify: true
+        positions:
+          filename: /tmp/positions.yaml
+        server:
+          http_listen_port: 3100
+        target_config:
+          sync_period: 10s
+        scrape_configs:
+          - job_name: somaz-request
+            static_configs:
+              - targets:
+                  - localhost
+                labels:
+                  job: request
+                  __path__: "/etc/slog/request.log.*"
+          - job_name: somaz-analysis
+            static_configs:
+              - targets:
+                  - localhost
+                labels:
+                  job: analysis
+                  __path__: "/etc/slog/analysis.log.*"
+          - job_name: somaz-errors
+            static_configs:
+              - targets:
+                  - localhost
+                labels:
+                  job: errors
+                  __path__: "/etc/slog/errors.log.*"
+  - name: dsp-config
+    namespace: somaz
+    datas:
+      SERVER_NAME: somaz-server
+      SERVER_PORT: 3000
+      REDIS_DB_HOST: somaz-redis.y6x0a0.ng.0001.apn2.cache.amazonaws.com # Elastic Cache
+      REDIS_DB_PORT: 6379
+      DB_CONNECTION_LIMIT: 10
+      ADMIN_DB_HOST: somaz-rds.cluster-cqdt61h0qkxd.ap-northeast-2.rds.amazonaws.com # Aurora RDS Cluster
+      ADMIN_DB_PORT: 3306
+      ADMIN_DB_NAME: admin
+      WEB_DB_HOST: somaz-rds.cluster-cqdt61h0qkxd.ap-northeast-2.rds.amazonaws.com
+      WEB_DB_PORT: 3306
+      WEB_DB_NAME: web
+      WEB_LOG_DB_HOST: somaz-rds.cluster-cqdt61h0qkxd.ap-northeast-2.rds.amazonaws.com
+      WEB_LOG_DB_PORT: 3306
+      WEB_LOG_DB_NAME: game_log
+      LOG_DIRECTORY: /etc/slog/
+      MONGO_LOG_SERVER_HOST: https://mongo-log-somaz.link
+      MONGO_LOG_SERVER_X_API_KEY: somaz-user
+
+externalSecrets:
+  - name: somaz-database
+    backendType: secretsManager
+    region: ap-northeast-2
+    namespace: somaz
+    datas:
+      - key: somaz-database
+        property: username
+        name: ADMIN_DB_ID
+      - key: somaz-database
+        property: password
+        name: ADMIN_DB_PW
+      - key: somaz-database
+        property: username
+        name: WEB_DB_ID
+      - key: somaz-database
+        property: password
+        name: WEB_DB_PW
+      - key: somaz-database
+      - key: somaz-database
+        property: username
+        name: WEB_LOG_DB_ID
+      - key: somaz-database
+        property: password
+        name: WEB_LOG_DB_PW
+      - key: somaz-database
+        property: somaz-bastion-user
+        name: SOMAZ_BASTION_USER
+      - key: somaz-database
+        property: somaz-bastion-pem-key
+        name: SOMAZ_BASTION_PEM_KEY
+
+storageClasses:
+  - name: somaz-staticdata-ebs-sc
+    provisioner: ebs.csi.aws.com
+    reclaimPolicy: Retain
+    volumeBindingMode: WaitForFirstConsumer
+
+persistentVolumeClaims:
+  - name: somaz-staticdata-ebs-pvc
+    accessModes:
+      - ReadWriteMany
+    storageClassName: somaz-staticdata-ebs-sc
+    storage: 5Gi
+    volumeName: somaz-staticdata-persistent-storage
+    mountPath: /app/data
+
+volumes:
+  - name: promtail-config
+    configMap:
+      name: promtail-configmap
+      items:
+        - key: config.yml
+          path: promtail.yaml
+  - name: shared-data
+    emptyDir: {}
+
+secretVolume:
+  enabled: true   # false if don't use secretvolume  
+  secretVolumeName: somaz-bastion-key-secret
+  secretVolumeMountPath: "/etc/ssh"
+  secretVolumeReadOnly: true
+  secretName: somaz-database
+  key: SOMAZ_BASTION_PEM_KEY
+  Path: somaz_bastion.pem

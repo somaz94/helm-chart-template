@@ -1,0 +1,49 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: dev-dsp-appicationset
+spec:
+  generators:
+    - matrix:
+        generators:
+          - list:
+              elements:
+                - cluster: somaz
+                  url: https://xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.sk1.ap-northeast-2.eks.amazonaws.com # EKS url
+                  values:
+                    environment: somaz1
+                    project: somaz
+                - cluster: somaz
+                  url: https://xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.sk1.ap-northeast-2.eks.amazonaws.com # EKS url
+                  values:
+                    environment: somaz2
+                    project: somaz
+          - git:
+              repoURL: git@github.com:somaz94/helm-chart-template.git
+              revision: HEAD
+              directories:
+                - path: aws/eks_fargate_use_efs/* # path
+  template:
+    metadata:
+      name: '{{values.environment}}-{{values.project}}-{{path.basename}}'
+    spec:
+      project: '{{cluster}}'
+      source:
+        repoURL: git@github.com:somaz94/helm-chart-template.git
+        targetRevision: HEAD
+        path: '{{path}}'
+        helm:
+          version: v3
+          valueFiles:
+            - '{{values.environment}}.values.yaml'
+      destination:
+        server: '{{url}}'
+        namespace: '{{values.environment}}-{{path.basename}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ApplyOutOfSyncOnly=true
+

@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "somaz.fullname" . }}
+  labels:
+    {{- include "somaz.labels" . | nindent 4 }}
+spec:
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "somaz.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "somaz.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "somaz.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+          #livenessProbe:
+          #  httpGet:
+          #    path: /
+          #    port: http
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080     # write your targetport
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: NODE_ENV
+              value: {{ .Values.envConfig.NODE_ENV }}
+            - name: ENVIRONMENT
+              value: {{ .Values.envConfig.ENVIRONMENT }}
+          envFrom:
+          {{- range $config := .Values.configs }}
+          - configMapRef:
+              name: {{ $config.name }}
+          {{- end}}
+          {{- range $externalSecret := .Values.externalSecrets }}
+          - secretRef:
+              name: {{ $externalSecret.name }}
+          {{- end}}
+          volumeMounts:
+            {{- range $persistentVolumeClaim := .Values.persistentVolumeClaims }}
+            - name: {{ $persistentVolumeClaim.volumeName }}
+              mountPath: {{ $persistentVolumeClaim.mountPath }}
+            {{- end}}
+            {{- if .Values.sidecars.enabled }}
+            {{- range $container := .Values.sidecars.containers }}
+            {{- range $volumeMount := $container.volumeMounts }}
+            - name: {{ $volumeMount.name }}
+              mountPath: {{ $volumeMount.mountPath }}
+            {{- end}}
+            {{- end}}
+            {{- end}}
+        {{- if .Values.sidecars.enabled }}
+        {{- toYaml .Values.sidecars.containers | nindent 8 }}
+        {{- end}}
+      volumes:
+        {{- range $persistentVolumeClaim := .Values.persistentVolumeClaims }}
+        - name: {{ $persistentVolumeClaim.volumeName }}
+          persistentVolumeClaim:
+            claimName: {{ $persistentVolumeClaim.name }}
+        {{- end }}
+        {{- if .Values.secretVolume.enabled }}
+        - name: {{ .Values.secretVolume.secretVolumeName }}
+          secret:
+            secretName: {{ .Values.secretVolume.secretName }}
+            items:
+              - key: {{ .Values.secretVolume.key }}
+                path: {{ .Values.secretVolume.path }}
+        {{- end }}
+      {{- with .Values.volumes }}
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
