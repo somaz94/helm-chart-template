@@ -3,8 +3,6 @@ This is helm chart template with ArgoCD
 
 ## AWS
 
-### Structure
-
 ```bash
 └── aws
     ├── eks-fargate-use-ebs
@@ -27,8 +25,6 @@ This is helm chart template with ArgoCD
 ```
 
 ## GCP
-
-### Structure
 
 ```bash
 └── gcp
@@ -63,8 +59,6 @@ This is helm chart template with ArgoCD
 
 
 ## argocd-applicationset
-
-### Structure
 
 ```bash
 └── argocd-applicationset
