@@ -193,7 +193,6 @@ externalSecrets:
         property: password
         name: WEB_DB_PW
       - key: somaz-database
-      - key: somaz-database
         property: username
         name: WEB_LOG_DB_ID
       - key: somaz-database
