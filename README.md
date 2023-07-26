@@ -3,7 +3,7 @@ This is helm chart template with ArgoCD
 
 ## AWS
 
-### File structure
+### File Structure
 
 ```bash
 └── aws
@@ -28,7 +28,7 @@ This is helm chart template with ArgoCD
 
 ## GCP
 
-### File structure
+### Structure
 
 ```bash
 └── gcp
@@ -64,7 +64,7 @@ This is helm chart template with ArgoCD
 
 ## argocd-applicationset
 
-### File structure
+### Structure
 
 ```bash
 └── argocd-applicationset
