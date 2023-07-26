@@ -4,6 +4,8 @@ This is helm chart template with ArgoCD
 ## AWS
 
 ### File structure
+
+```bash
 └── aws
     ├── eks-fargate-use-ebs
     │   ├── Chart.yaml
@@ -22,10 +24,13 @@ This is helm chart template with ArgoCD
         ├── somaz.values.yaml
         ├── templates
         └── values.yaml
+```
 
 ## GCP
 
 ### File structure
+
+```bash
 └── gcp
     ├── gke-use-firestore
     │   ├── Chart.yaml
@@ -54,12 +59,17 @@ This is helm chart template with ArgoCD
         ├── somaz.values.yaml
         ├── templates
         └── values.yaml
+```
+
 
 ## argocd-applicationset
 
 ### File structure
+
+```bash
 └── argocd-applicationset
     ├── aws-applicationset.yaml
     ├── aws-externalsecret-applicationset.yaml
     ├── gcp-applicationset.yaml
     └── gcp-externalsecret-applicationset.yaml
+```
