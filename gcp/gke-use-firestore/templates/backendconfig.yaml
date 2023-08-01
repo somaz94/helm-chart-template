@@ -11,5 +11,9 @@ spec:
     type: {{ .Values.backendConfig.healthCheck.type }}
     requestPath: {{ .Values.backendConfig.healthCheck.requestPath }}
     port: {{ .Values.backendConfig.healthCheck.port }}
+  {{- if .Values.backendConfig.customRequestHeaders }}
+  customRequestHeaders:
+    {{- toYaml .Values.backendConfig.customRequestHeaders | nindent 4 }}
+  {{- end }}
 
 

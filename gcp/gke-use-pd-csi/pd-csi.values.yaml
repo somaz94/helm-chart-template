@@ -86,6 +86,10 @@ backendConfig:
     type: HTTP
     requestPath: /health
     port: 8080 # targetport
+  customRequestHeaders:
+    headers:
+    - "X-Client-Region:{client_region}"
+    - "X-Client-City:{client_city}"
 
 frontendConfig:
   redirectToHttpsEnabled: true # HTTP -> HTTPS redirected
