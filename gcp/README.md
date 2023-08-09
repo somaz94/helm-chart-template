@@ -1,5 +1,6 @@
 
-### GKE Storage Class 
+## GKE Storage Class 
+```bash
 k get storageclasses.storage.k8s.io
 NAME                        PROVISIONER                                     RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
 enterprise-multishare-rwx   filestore.csi.storage.gke.io                    Delete          WaitForFirstConsumer   true                   34d
@@ -10,6 +11,7 @@ premium-rwx                 filestore.csi.storage.gke.io                    Dele
 standard                    kubernetes.io/gce-pd                            Delete          Immediate              true                   34d
 standard-rwo (default)      pd.csi.storage.gke.io                           Delete          WaitForFirstConsumer   true                   34d
 standard-rwx                filestore.csi.storage.gke.io                    Delete          WaitForFirstConsumer   true                   34d
+```
 
-### External Secret
-https://github.com/external-secrets/kubernetes-external-secrets/tree/master
+## Reference
+- [external-secrets](https://github.com/external-secrets/kubernetes-external-secrets/tree/master)
