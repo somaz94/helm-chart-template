@@ -1,5 +1,7 @@
 ## Certmanager Install
 
+Please refer to the reference below for the latest version.
+
 ```bash
 kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.12.3/cert-manager.yaml
 
@@ -11,6 +13,9 @@ cert-manager-webhook-694b449697-7d4zp      1/1     Running   0          33s
 ```
 
 ## NFS Provisioner Install
+
+The nfs-server helm chart is located in the reference below.
+
 ```bash
 k create ns nfs-provisioner
 
@@ -121,4 +126,8 @@ spec:
             key: key.json # secret data name
 ```
 
+## Reference
+- [certmanager](https://github.com/cert-manager/cert-manager/releases)
+- [certmanager-issuer-setting](https://cert-manager.io/docs/configuration/acme/dns01/)
+- [nfs-subdir-external-provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner)
 
