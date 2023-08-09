@@ -11,8 +11,8 @@ spec:
                 - cluster: somaz-gke
                   url: https://1.1.1.1 # ClusterIP
                   values:
-                    environment: somaz
-                    project: somaz
+                    environment: dev1
+                    project: somaz-gcp
           - git:
               repoURL: git@github.com:somaz94/helm-chart-template.git
               revision: HEAD
@@ -30,7 +30,7 @@ spec:
         helm:
           version: v3
           valueFiles:
-            - '{{values.environment}}.values.yaml'
+            - '{{path.basename}}.values.yaml'
       destination:
         server: '{{url}}'
         namespace: '{{values.namespace}}-{{path.basename}}'

@@ -1,33 +1,28 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: aws-appicationset
+  name: onpremise-appicationset
 spec:
   generators:
     - matrix:
         generators:
           - list:
               elements:
-                - cluster: somaz-eks
-                  url: https://xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.sk1.ap-northeast-2.eks.amazonaws.com # EKS url
+                - cluster: master-node.somaz.link # your cluster name
+                  url: https://xx.xx.xxx.xx:6443  # your cluster url
                   values:
+                    project: somaz-onpremise
                     environment: dev1
-                    project: somaz-aws
-                - cluster: somaz-eks
-                  url: https://xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.sk1.ap-northeast-2.eks.amazonaws.com # EKS url
-                  values:
-                    environment: dev2
-                    project: somaz-aws
           - git:
-              repoURL: git@github.com:somaz94/helm-chart-template.git
+              repoURL: git@github.com:somaz94/helm-chart-template.git # your source repo
               revision: HEAD
               directories:
-                - path: aws/eks_fargate_use_efs/* # path
+                - path: onpremise/ke-use-nfs-server/*
   template:
     metadata:
       name: '{{values.environment}}-{{values.project}}-{{path.basename}}'
     spec:
-      project: '{{cluster}}'
+      project: '{{values.project}}'
       source:
         repoURL: git@github.com:somaz94/helm-chart-template.git
         targetRevision: HEAD
@@ -38,7 +33,7 @@ spec:
             - '{{path.basename}}.values.yaml'
       destination:
         server: '{{url}}'
-        namespace: '{{values.environment}}-{{path.basename}}'
+        namespace: '{{values.project}}-{{path.basename}}'
       syncPolicy:
         automated:
           prune: true
@@ -46,4 +41,5 @@ spec:
         syncOptions:
           - CreateNamespace=true
           - ApplyOutOfSyncOnly=true
+
 
