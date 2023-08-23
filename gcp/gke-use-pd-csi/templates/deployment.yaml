@@ -51,10 +51,10 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
-            - name: NODE_ENV
-              value: {{ .Values.envConfig.NODE_ENV }}
-            - name: ENVIRONMENT
-              value: {{ .Values.envConfig.ENVIRONMENT }}
+          {{- range $key, $value := .Values.envConfig }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+          {{- end }}
           envFrom:
           {{- range $config := .Values.configs }}
           - configMapRef:
