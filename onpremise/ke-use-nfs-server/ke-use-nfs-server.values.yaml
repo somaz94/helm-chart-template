@@ -148,6 +148,8 @@ certificate:
 #   enabled: true
 #   secretName: dev1-game-tls
 #   commonName: dev1-game.somaz.link
+#   duration: 2160h0m0s
+#   renewBefore: 360h0m0s
 #   dnsNames:
 #   - dev1-game.somaz.link
 #   issuerName: clouddns-issuer
