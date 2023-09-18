@@ -1,4 +1,4 @@
-# Helm Chart Templates with ArgoCD
+# Helm Chart Templates with ArgoCD 🚀
 This repository contains Helm chart templates specifically designed to work seamlessly with ArgoCD across various platforms: AWS, GCP, and on-premises infrastructure.
 
 ## 📁 AWS
