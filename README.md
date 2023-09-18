@@ -1,81 +1,20 @@
-# helm-chart-template
-This is helm chart template with ArgoCD
+# Helm Chart Templates with ArgoCD
+This repository contains Helm chart templates specifically designed to work seamlessly with ArgoCD across various platforms: AWS, GCP, and on-premises infrastructure.
 
-## AWS
+## 📁 AWS
+- 📂 eks-fargate-use-ebs: A template for storage using EBS.
+- 📂 eks-fargate-use-efs: A template for file storage using EFS.
+- 📂 external-secrets: Chart for managing AWS external secrets.
 
-```bash
-└── aws
-    ├── eks-fargate-use-ebs
-    │   ├── Chart.yaml
-    │   ├── ebs-csi.values.yaml
-    │   ├── templates
-    │   └── values.yaml
-    ├── eks-fargate-use-efs
-    │   ├── Chart.yaml
-    │   ├── efs-csi.values.yaml
-    │   ├── templates
-    │   └── values.yaml
-    └── external-secrets
-        ├── Chart.yaml
-        ├── README.md
-        ├── crds      
-        ├── somaz.values.yaml
-        ├── templates
-        └── values.yaml
-```
+## 📁 GCP
+- 📂 gke-use-firestore: Template for using Firestore on GKE.
+- 📂 gke-use-firestore-shared-vpc: Template for using Firestore on GKE with a shared VPC.
+- 📂 gke-use-nfs-server: Template for NFS server usage on GKE.
+- 📂 gke-use-pd-csi: Template for persistent disk CSI on GKE.
+- 📂 external-secrets: Chart for managing GCP external secrets.
 
-## GCP
+## 📁 argocd-applicationset
+Contains YAML files for configuring ArgoCD application sets.
 
-```bash
-└── gcp
-    ├── gke-use-firestore
-    │   ├── Chart.yaml
-    │   ├── firestore.values.yaml
-    │   ├── templates
-    │   └── values.yaml
-    ├── gke-use-firestore-shared-vpc
-    │   ├── Chart.yaml
-    │   ├── firestore-shared-vpc.values.yaml
-    │   ├── templates
-    │   └── values.yaml
-    ├── gke-use-nfs-server
-    │   ├── Chart.yaml
-    │   ├── nfs-server.values.yaml
-    │   ├── templates
-    │   └── values.yaml
-    ├── gke-use-pd-csi
-    │   ├── Chart.yaml
-    │   ├── pd-csi.values.yaml
-    │   ├── templates
-    │   └── values.yaml
-    └── external-secrets
-        ├── Chart.yaml
-        ├── README.md
-        ├── crds
-        ├── somaz.values.yaml
-        ├── templates
-        └── values.yaml
-```
-
-
-## argocd-applicationset
-
-```bash
-└── argocd-applicationset
-    ├── aws-applicationset.yaml
-    ├── aws-externalsecret-applicationset.yaml
-    ├── gcp-applicationset.yaml
-    └── gcp-externalsecret-applicationset.yaml
-```
-
-## Onpremise
-
-```bash
-└── onpremise
-    ├── README.md
-    └── ke-use-nfs-server
-        ├── Chart.yaml
-        ├── ke-use-nfs-server.values.yaml
-        ├── templates
-        └── values.yaml
-```
+## 📁 Onpremise
+- 📂 ke-use-nfs-server: Template for NFS server usage on a Kubernetes cluster deployed on-premise.
