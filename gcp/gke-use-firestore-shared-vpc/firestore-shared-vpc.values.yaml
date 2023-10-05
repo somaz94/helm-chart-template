@@ -107,6 +107,8 @@ tolerations: []
 
 affinity: {}
 
+revisionHistoryLimit: 2
+
 namespace: somaz
 
 envConfig: # envconfig
