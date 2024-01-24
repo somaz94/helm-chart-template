@@ -134,12 +134,14 @@ configs:
         [FILTER]
             Name    modify
             Match   somaz_server_game_dev1_error_log
-            Add     log_type somaz_server_game_dev1_error
+            Add     log_type error_log
+            Add     app somaz_server_game_dev1
 
-        # [FILTER]
-        #     Name    modify
-        #     Match   somaz_server_game_dev1_request_log
-        #     Add     log_type somaz_server_game_dev1_request
+        [FILTER]
+            Name    modify
+            Match   somaz_server_game_dev1_request_log
+            Add     log_type request_log
+            Add     app somaz_server_game_dev1
 
         [OUTPUT]
             Name stdout
@@ -152,7 +154,7 @@ configs:
             Port 443
             URI /loki/api/v1/push
             tls On
-            Labels job=fluent-bit, log_type=$log_type
+            Labels job=fluent-bit, log_type=$log_type, app=$app
 
       parsers.conf: |
         [PARSER]
