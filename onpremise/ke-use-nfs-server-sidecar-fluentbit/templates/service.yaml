@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ke-use-nfs-server-sidecar-fluentbit.fullname" . }}
+  labels:
+    {{- include "ke-use-nfs-server-sidecar-fluentbit.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "ke-use-nfs-server-sidecar-fluentbit.selectorLabels" . | nindent 4 }}

@@ -1,4 +1,4 @@
-# Default values for ke-use-nfs-server.
+# Default values for ke-use-nfs-server-sidecar-fluentbit.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -13,8 +13,8 @@ image:
 imagePullSecrets:
   - name: harbor-secret-v1
 
-nameOverride: "ke-use-nfs-server"
-fullnameOverride: "ke-use-nfs-server"
+nameOverride: "ke-use-nfs-server-sidecar-fluentbit"
+fullnameOverride: "ke-use-nfs-server-sidecar-fluentbit"
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -44,7 +44,7 @@ service:
   targetPort: 3000
 
 ingress:
-  name: ke-use-nfs-server-ingress
+  name: ke-use-nfs-server-sidecar-fluentbit-ingress
   enabled: true
   className: ""
   annotations: 
@@ -57,7 +57,7 @@ ingress:
           pathType: Prefix
           backend:
             service:
-              name: ke-use-nfs-server-svc
+              name: ke-use-nfs-server-sidecar-fluentbit-svc
               port: 80    
   tls: 
    - secretName: dev1-game-tls
@@ -91,14 +91,14 @@ affinity: {}
 
 revisionHistoryLimit: 1
 
-namespace: ke-use-nfs-server-dev1
+namespace: ke-use-nfs-server-sidecar-fluentbit-dev1
 
 envConfig:
   NODE_ENV: dev1
 
 configs:
-  - name: ke-use-nfs-server-dev1-config
-    namespace: ke-use-nfs-server-dev1
+  - name: ke-use-nfs-server-sidecar-fluentbit-dev1-config
+    namespace: ke-use-nfs-server-sidecar-fluentbit-dev1
     datas:
       SERVER_PORT: 3000
       REDIS_DB_HOST: dev1-redis.somaz.link
@@ -110,8 +110,60 @@ configs:
       ADMIN_DB_PW: somaz94
       ADMIN_DB_SYNCHRONIZE: true
 
+  - name: fluent-bit-configmap
+    namespace: fgn-server-dev1 
+    datas:
+      fluent-bit.conf: |
+        [SERVICE]
+            Flush        10
+            Log_Level    info
+            Parsers_File parsers.conf
+
+        [INPUT]
+            Name tail
+            Path /app/logs/system/error.log.*
+            Tag somaz_game_dev1_error_log
+            Parser json
+
+        [INPUT]
+            Name tail
+            Path /app/logs/request/request.log.*
+            Tag somaz_server_game_dev1_request_log
+            Parser json
+
+        [FILTER]
+            Name    modify
+            Match   somaz_server_game_dev1_error_log
+            Add     log_type somaz_server_game_dev1_error
+
+        # [FILTER]
+        #     Name    modify
+        #     Match   somaz_server_game_dev1_request_log
+        #     Add     log_type somaz_server_game_dev1_request
+
+        [OUTPUT]
+            Name stdout
+            Match *
+
+        [OUTPUT]
+            Name loki
+            Match *
+            Host loki.somaz.link
+            Port 443
+            URI /loki/api/v1/push
+            tls On
+            Labels job=fluent-bit, log_type=$log_type
+
+      parsers.conf: |
+        [PARSER]
+            Name   json
+            Format json
+            Time_Key timestamp
+            Time_Format %Y-%m-%dT%H:%M:%S.%LZ
+
+
 persistentVolumes:
-  - name: ke-use-nfs-server-dev1-data-pv
+  - name: ke-use-nfs-server-sidecar-fluentbit-dev1-data-pv
     type: data
     storage: 5Gi
     volumeMode: Filesystem
@@ -123,7 +175,7 @@ persistentVolumes:
     server: nfs-server.somaz.link
 
 persistentVolumeClaims:
-  - name: ke-use-nfs-server-dev1-data-pv-claim
+  - name: ke-use-nfs-server-sidecar-fluentbit-dev1-data-pv-claim
     accessModes:
       - ReadWriteOnce
     storageClassName: nfs-client
@@ -154,3 +206,23 @@ certificate:
 #   - dev1-game.somaz.link
 #   issuerName: clouddns-issuer
 #   issuerKind: ClusterIssuer
+
+# fluentbit
+sidecars:
+  enabled: true
+  containers:
+    - name: fluent-bit
+      image: fluent/fluent-bit:2.2.2
+      volumeMounts:
+        - name: shared-data
+          mountPath: /app/logs
+        - name: fluent-bit-config
+          mountPath: /fluent-bit/etc
+
+volumes:
+  - name: fluent-bit-config
+    configMap:
+      name: fluent-bit-configmap
+  - name: shared-data
+    emptyDir: {}
+
