@@ -1,0 +1,265 @@
+# Default values for admin.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 2
+
+image:
+  repository: haproxy
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "3.0-dev6-alpine"
+
+imagePullSecrets: []
+nameOverride: "dev1-haproxy"
+fullnameOverride: "dev1-haproxy"
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+  backendConfig:
+    ports:
+      http: dev1-haproxy
+
+ingress:
+  enabled: true
+  className: ""
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: "devqa-somaz-gke-dev1-multipath-lb-ip"
+    networking.gke.io/managed-certificates: "dev1-haproxy"
+    kubernetes.io/ingress.class: "gce"
+    networking.gke.io/v1beta1.FrontendConfig: dev1-haproxy
+  hosts:
+    - host: dev1-sm.somaz.link
+      paths:
+      - pathType: Prefix
+        path: "/"
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+mainContainer:
+  volumeMounts:
+    - mountPath: /usr/local/etc/haproxy/haproxy.cfg
+      name: haproxy-config
+      subPath: haproxy.cfg
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+envConfig:
+  NODE_ENV: dev1
+  ENVIRONMENT: dev1
+
+managedCertificate:
+  domain: dev1-sm.somaz.link
+
+backendConfig:
+  healthCheck:
+    checkIntervalSec: 30
+    timeoutSec: 5
+    healthyThreshold: 1
+    unhealthyThreshold: 2
+    type: HTTP
+    requestPath: /health
+    port: 8080
+
+frontendConfig:
+  redirectToHttpsEnabled: true
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+revisionHistoryLimit: 2
+
+namespace: haproxy
+hasStaging: false
+
+sidecars:
+  enabled: false
+  containers:
+    # - name: promtail
+    #   securityContext: {}
+    #   image: grafana/promtail:master
+    #   imagePullPolicy: IfNotPresent
+    #   args:
+    #     - "-config.file=/etc/promtail/promtail.yaml"
+    #     - "-client.url=https://loki.mgmt.luxon.run/api/prom/push"
+    #   volumeMounts:
+    #     - name: shared-data
+    #       mountPath: /etc/slog
+    #     - name: promtail-config
+    #       mountPath: /etc/promtail/promtail.yaml
+    #       subPath: promtail.yaml
+
+configs:
+  - name: haproxy-configmap
+    namespace: haproxy
+    datas:
+      haproxy.cfg: |
+        # HAProxy 전역 설정
+        global
+            log stdout format raw local0
+
+        # 모든 프론트엔드/백엔드를 위한 기본 설정
+        defaults
+            log global
+            option httplog
+            timeout connect 5000ms
+            timeout client 50000ms
+            timeout server 50000ms
+
+        # 들어오는 요청을 위한 프론트엔드
+        frontend http_front
+            bind *:8080
+            mode http
+            stats uri /haproxy?stats
+
+            # 경로가 /game, /auth, /log, /health 인지 확인하는 ACL
+            acl health_check path /health
+            acl path_game path_beg /game
+            acl path_auth path_beg /auth
+            # acl path_log path_beg /log
+
+            # 조건에 따라 적절한 백엔드로 요청 라우팅
+            use_backend health_check_backend if health_check
+            use_backend game_back if path_game
+            use_backend auth_back if path_auth
+            # use_backend log_back if path_log
+
+        # 헬스 체크를 위한 백엔드 설정
+        backend health_check_backend
+            mode http
+            http-request return status 200 content-type text/plain string "OK"
+
+        # "/game" 경로를 처리하는 백엔드
+        backend game_back
+            mode http
+            balance roundrobin
+            # /game/x 요청이 /x로 변환되어 game 서비스로 전송됩니다.
+            http-request set-path %[path,regsub(^/game,/)]
+            server game game.dev1-game.svc.cluster.local:80 check
+
+        # "/auth" 경로를 처리하는 백엔드
+        backend auth_back
+            mode http
+            balance roundrobin
+            # /auth/x 요청이 /x로 변환되어 auth 서비스로 전송됩니다.
+            # http-request set-path %[path,regsub(^/auth/,/)]
+            # /auth/x 요청이 /auth/x로 변환되어 auth 서비스로 전송됩니다.
+            http-request set-path %[path,regsub(^/auth/auth/,/auth/)]
+            server auth auth.dev1-auth.svc.cluster.local:80 check
+
+        # # "/log" 경로를 처리하는 백엔드
+        # backend log_back
+        #     mode http
+        #     balance roundrobin
+        #     # /log/x 요청이 /x로 변환되어 log 서비스로 전송됩니다.
+        #     http-request set-path %[path,regsub(^/log/,/)]
+        #     # /log/x 요청이 /log/x로 변환되어 log 서비스로 전송됩니다.
+        #     # http-request set-path %[path,regsub(^/log/log/,/log/)]
+        #     server log log.dev1-log.svc.cluster.local:80 check
+  # - name: promtail-configmap
+  #   namespace: dev1-game
+  #   datas:
+  #     config.yml: |
+  #       client:
+  #         url: https://loki.mgmt.luxon.run/loki/api/v1/push
+  #         tls_config:
+  #           insecure_skip_verify: true
+  #       positions:
+  #         filename: /tmp/positions.yaml
+  #       server:
+  #         http_listen_port: 3100
+  #       target_config:
+  #         sync_period: 10s
+  #       scrape_configs:
+  #         - job_name: dev1-eh-game-request
+  #           static_configs:
+  #             - targets:
+  #                 - localhost
+  #               labels:
+  #                 job: request
+  #                 __path__: "/etc/slog/request.log.*"
+  #         - job_name: dev1-eh-game-analysis
+  #           static_configs:
+  #             - targets:
+  #                 - localhost
+  #               labels:
+  #                 job: analysis
+  #                 __path__: "/etc/slog/analysis.log.*"
+  #         - job_name: dev1-eh-game-errors
+  #           static_configs:
+  #             - targets:
+  #                 - localhost
+  #               labels:
+  #                 job: errors
+  #                 __path__: "/etc/slog/errors.log.*"
+
+
+volumes:
+  - name: haproxy-config
+    configMap:
+      name: haproxy-configmap
+      items:
+        - key: haproxy.cfg
+          path: haproxy.cfg
+  # - name: promtail-config
+  #   configMap:
+  #     name: promtail-configmap
+  #     items:
+  #       - key: config.yml
+  #         path: promtail.yaml
+  # - name: shared-data
+  #   emptyDir: {}
+
+

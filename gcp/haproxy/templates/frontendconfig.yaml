@@ -1,0 +1,18 @@
+apiVersion: networking.gke.io/v1beta1
+kind: FrontendConfig
+metadata:
+  name: {{ include "haproxy.fullname" . }}
+spec:
+  redirectToHttps:
+    enabled: {{ .Values.frontendConfig.redirectToHttpsEnabled }}
+---
+{{- if .Values.hasStaging }}
+apiVersion: networking.gke.io/v1beta1
+kind: FrontendConfig
+metadata:
+  name: {{ include "haproxy.fullname" . }}
+  namespace: "staging-{{ .Values.namespace }}"
+spec:
+  redirectToHttps:
+    enabled: {{ .Values.frontendConfig.redirectToHttpsEnabled }}
+{{- end}}
