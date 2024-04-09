@@ -199,15 +199,15 @@ configs:
             http-request set-path %[path,regsub(^/auth/auth/,/auth/)]
             server auth auth.dev1-auth.svc.cluster.local:80 check
 
-        # # "/log" 경로를 처리하는 백엔드
-        # backend log_back
-        #     mode http
-        #     balance roundrobin
-        #     # /log/x 요청이 /x로 변환되어 log 서비스로 전송됩니다.
-        #     http-request set-path %[path,regsub(^/log/,/)]
-        #     # /log/x 요청이 /log/x로 변환되어 log 서비스로 전송됩니다.
-        #     # http-request set-path %[path,regsub(^/log/log/,/log/)]
-        #     server log log.dev1-log.svc.cluster.local:80 check
+        # "/log" 경로를 처리하는 백엔드
+        backend log_back
+            mode http
+            balance roundrobin
+            # /log/x 요청이 /x로 변환되어 log 서비스로 전송됩니다.
+            # http-request set-path %[path,regsub(^/log/,/)]
+            # /log/x 요청이 /log/x로 변환되어 log 서비스로 전송됩니다.
+            http-request set-path %[path,regsub(^/log/log/,/log/)]
+            server log log.dev1-log.svc.cluster.local:80 check
   # - name: promtail-configmap
   #   namespace: dev1-game
   #   datas:
