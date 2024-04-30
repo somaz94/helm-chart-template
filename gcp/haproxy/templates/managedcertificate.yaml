@@ -4,7 +4,9 @@ metadata:
   name: {{ include "haproxy.fullname" . }}
 spec:
   domains:
-    - {{ .Values.managedCertificate.domain }}
+  {{- range .Values.managedCertificate.domains }}
+    - {{ . }}
+  {{- end }}
 {{- if .Values.hasStaging }}
 apiVersion: networking.gke.io/v1
 kind: ManagedCertificate
@@ -13,5 +15,7 @@ metadata:
   namespace: "staging-{{ .Values.namespace }}"
 spec:
   domains:
-    - {{ .Values.staging_managedCertificate.domain }}
+  {{- range .Values.managedCertificate.domains }}
+    - {{ . }}
+  {{- end }}
 {{- end}}

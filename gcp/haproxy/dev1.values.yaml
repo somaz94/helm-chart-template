@@ -91,7 +91,9 @@ envConfig:
   ENVIRONMENT: dev1
 
 managedCertificate:
-  domain: dev1-sm.somaz.link
+  domains: 
+    - dev1-sm.somaz.link
+    - dev2-sm.somaz.link
 
 backendConfig:
   healthCheck:
