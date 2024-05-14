@@ -153,7 +153,7 @@ configs:
                 labels:
                   job: errors
                   __path__: "/etc/slog/errors.log.*"
-  - name: dsp-config
+  - name: somaz-config
     namespace: somaz
     datas:
       SERVER_NAME: somaz-server

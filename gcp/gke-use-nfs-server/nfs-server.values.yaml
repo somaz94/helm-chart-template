@@ -231,7 +231,7 @@ persistentVolumeClaims:
     accessModes:
       - ReadWriteMany
     storageClassName: nfs-client
-    volumeName: somaz-staticdata-persistent-storage
+    volumeName: somaz-staticdata-nfs-pv
     mountPath: /app/data
 
 volumes:
