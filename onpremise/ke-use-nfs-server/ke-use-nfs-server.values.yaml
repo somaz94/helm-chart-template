@@ -155,3 +155,7 @@ certificate:
 #   - dev1-game.somaz.link
 #   issuerName: clouddns-issuer
 #   issuerKind: ClusterIssuer
+
+certCleanup:
+  enabled: false
+  olderThanDays: 100

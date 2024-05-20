@@ -1,0 +1,24 @@
+{{- if .Values.certCleanup.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cert-cleanup-job
+  namespace: {{ .Release.Namespace }}
+spec:
+  template:
+    spec:
+      containers:
+      - name: cert-cleanup
+        image: bitnami/kubectl:latest
+        command: ["sh", "-c"]
+        args:
+          - |
+            #!/bin/sh
+            set -e
+            now_epoch=$(date +%s)
+            kubectl get certificaterequests.cert-manager.io -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ include "admin.fullname" . }} -o json | \
+            jq --argjson now_epoch "$now_epoch" -r \
+              '.items[] | select(($now_epoch - (.metadata.creationTimestamp | sub("[:-]"; " ") | sub("T"; " ") | sub("Z"; "") | strptime("%Y %m %d %H %M %S") | mktime)) > ({{ .Values.certCleanup.olderThanDays }} * 86400)) | .metadata.name' | \
+            xargs -I {} kubectl delete certificaterequest {} -n {{ .Release.Namespace }}
+      restartPolicy: Never
+{{- end }}
