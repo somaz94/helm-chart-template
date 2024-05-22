@@ -1,5 +1,5 @@
 {{- if .Values.certCleanup.enabled }}
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: cert-cleanup-cronjob
@@ -19,9 +19,18 @@ spec:
                 #!/bin/sh
                 set -e
                 now_epoch=$(date +%s)
+                # Delete old CertificateRequests
                 kubectl get certificaterequests.cert-manager.io -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ include "admin.fullname" . }} -o json | \
                 jq --argjson now_epoch "$now_epoch" -r \
-                  '.items[] | select(($now_epoch - (.metadata.creationTimestamp | sub("[:-]"; " ") | sub("T"; " ") | sub("Z"; "") | strptime("%Y %m %d %H %M %S") | mktime)) > ({{ .Values.certCleanup.olderThanDays }} * 86400)) | .metadata.name' | \
+                  '.items[] | select(($now_epoch - (.metadata.creationTimestamp | gsub("[:-]"; " ") | sub("T"; " ") | sub("Z"; "") | sub("\\..*"; "") | strptime("%Y %m %d %H %M %S") | mktime)) > ({{ .Values.certCleanup.olderThanDays }} * 86400)) | .metadata.name' | \
                 xargs -I {} kubectl delete certificaterequest {} -n {{ .Release.Namespace }}
+
+                # Delete old completed Jobs
+                YESTER_DAYS={{ .Values.certCleanup.YesterDays }}
+                kubectl get jobs -n {{ .Release.Namespace }} --field-selector=status.successful==1 -o json | \
+                jq --argjson now_epoch "$now_epoch" --argjson older_than_days "$YESTER_DAYS" -r \
+                  '.items[] | select((($now_epoch - (.status.completionTime | gsub("[:-]"; " ") | sub("T"; " ") | sub("Z"; "") | sub("\\..*"; "") | strptime("%Y %m %d %H %M %S") | mktime)) > ($older_than_days * 86400)) and (($now_epoch - (.status.completionTime | gsub("[:-]"; " ") | sub("T"; " ") | sub("Z"; "") | sub("\\..*"; "") | strptime("%Y %m %d %H %M %S") | mktime)) <= (($older_than_days + 1) * 86400))) | .metadata.name' | \
+                xargs -I {} kubectl delete job {} -n {{ .Release.Namespace }}
           restartPolicy: OnFailure
 {{- end }}
+

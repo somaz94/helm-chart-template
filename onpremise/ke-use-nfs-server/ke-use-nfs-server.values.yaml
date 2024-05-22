@@ -159,3 +159,4 @@ certificate:
 certCleanup:
   enabled: false
   olderThanDays: 100
+  YesterDays: 1
