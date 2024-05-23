@@ -84,6 +84,21 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
+rbac:
+  enabled: true
+  serviceAccountName: "" # Leave empty to use admin.fullname as default
+  role:
+    name: cert-job-manager
+    resources:
+      - apiGroups: ["cert-manager.io"]
+        resources: ["certificaterequests"]
+        verbs: ["get", "list", "watch", "delete"]
+      - apiGroups: ["batch"]
+        resources: ["jobs"]
+        verbs: ["get", "list", "watch", "delete"]
+  roleBinding:
+    name: cert-job-manager-binding
+
 nodeSelector: {}
 
 tolerations: []

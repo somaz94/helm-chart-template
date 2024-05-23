@@ -33,4 +33,3 @@ spec:
                 xargs -I {} kubectl delete job {} -n {{ .Release.Namespace }}
           restartPolicy: OnFailure
 {{- end }}
-
