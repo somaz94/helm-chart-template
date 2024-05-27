@@ -10,6 +10,7 @@ spec:
     spec:
       template:
         spec:
+          serviceAccountName: {{ default (include "ke-use-nfs-server.fullname" .) .Values.rbac.serviceAccountName }}
           containers:
           - name: cert-cleanup
             image: bitnami/kubectl:latest
