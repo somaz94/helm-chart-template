@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: cert-cleanup-cronjob
+  name: {{ .Values.certCleanup.CronJobName }}
   namespace: {{ .Release.Namespace }}
 spec:
   schedule: "0 0 * * *"  # Runs at midnight every day

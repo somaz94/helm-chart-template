@@ -88,7 +88,7 @@ rbac:
   enabled: true
   serviceAccountName: "" # Leave empty to use admin.fullname as default
   role:
-    name: cert-job-manager
+    name: cert-job-manager-game
     resources:
       - apiGroups: ["cert-manager.io"]
         resources: ["certificaterequests"]
@@ -97,7 +97,7 @@ rbac:
         resources: ["jobs"]
         verbs: ["get", "list", "watch", "delete"]
   roleBinding:
-    name: cert-job-manager-binding
+    name: cert-job-manager-binding-game
 
 nodeSelector: {}
 
@@ -173,5 +173,6 @@ certificate:
 
 certCleanup:
   enabled: false
+  CronJobName: cert-cleanup-cronjob-game
   olderThanDays: 100
   YesterDays: 1
