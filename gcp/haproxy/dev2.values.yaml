@@ -11,8 +11,8 @@ image:
   tag: "3.0-dev6-alpine"
 
 imagePullSecrets: []
-nameOverride: "dev1-haproxy"
-fullnameOverride: "dev1-haproxy"
+nameOverride: "dev2-haproxy"
+fullnameOverride: "dev2-haproxy"
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -42,22 +42,23 @@ service:
   targetPort: 8080
   backendConfig:
     ports:
-      http: dev1-haproxy
+      http: dev2-haproxy
 
 ingress:
   enabled: true
   className: ""
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: "devqa-somaz-gke-dev1-multipath-lb-ip"
-    networking.gke.io/managed-certificates: "dev1-haproxy"
+    kubernetes.io/ingress.global-static-ip-name: "devqa-somaz-gke-dev2-multipath-lb-ip"
+    networking.gke.io/managed-certificates: "dev2-haproxy"
     kubernetes.io/ingress.class: "gce"
-    networking.gke.io/v1beta1.FrontendConfig: dev1-haproxy
+    networking.gke.io/v1beta21.FrontendConfig: dev2-haproxy
   hosts:
-    - host: dev1-sm.somaz.link
+    - host: dev2-sm.somaz.link
       paths:
       - pathType: Prefix
         path: "/"
-    - host: beta1-sm.somaz.link  
+  hosts:
+    - host: beta2-sm.somaz.link
       paths:
       - pathType: Prefix
         path: "/"
@@ -91,13 +92,13 @@ resources:
   #   memory: 128Mi
 
 envConfig:
-  NODE_ENV: dev1
-  ENVIRONMENT: dev1
+  NODE_ENV: dev2
+  ENVIRONMENT: dev2
 
 managedCertificate:
   domains: 
-    - dev1-sm.somaz.link
-    - beta1-sm.somaz.link
+    - dev2-sm.somaz.link
+    - beta2-sm.somaz.link
 
 backendConfig:
   healthCheck:
@@ -139,7 +140,7 @@ sidecars:
     #   imagePullPolicy: IfNotPresent
     #   args:
     #     - "-config.file=/etc/promtail/promtail.yaml"
-    #     - "-client.url=https://loki.mgmt.somaz.link/api/prom/push"
+    #     - "-client.url=https://loki.mgmt.luxon.run/api/prom/push"
     #   volumeMounts:
     #     - name: shared-data
     #       mountPath: /etc/slog
@@ -170,19 +171,32 @@ configs:
             mode http
             stats uri /haproxy?stats
 
+            # 도메인별 ACL 설정
+            acl host_dev2_somaz hdr(host) -i dev2-sm-somaz.link
+            acl host_beta2_somaz hdr(host) -i beta2-sm-somaz.link
+
             # 경로가 /game, /auth, /log, /health 인지 확인하는 ACL
             acl health_check path /health
             acl path_game_somaz path_beg /game/somaz
+            acl path_admin_somaz path_beg /game/admin
             acl path_game path_beg /game
             acl path_auth path_beg /auth
-            # acl path_log path_beg /log
+            acl path_log path_beg /log
 
             # 조건에 따라 적절한 백엔드로 요청 라우팅
             use_backend health_check_backend if health_check
-            use_backend game_somaz_back if path_game_somaz
-            use_backend game_back if path_game
-            use_backend auth_back if path_auth
+            # use_backend game_somaz_back if path_game_somaz
+            use_backend game_somaz_back if host_dev2_somaz path_game_somaz
+            use_backend admin_game_somaz_back if host_beta2_somaz path_admin_somaz
+            # use_backend game_back if path_game
+            # use_backend auth_back if path_auth
             # use_backend log_back if path_log
+            use_backend game_back if host_dev2_somaz path_game
+            use_backend auth_back if host_dev2_somaz path_auth
+            use_backend log_back if host_dev2_somaz path_log
+
+            # beta2_somaz에 대한 추가 경로 차단
+            http-request deny if host_beta2_somaz !path_admin_somaz
 
         # 헬스 체크를 위한 백엔드 설정
         backend health_check_backend
@@ -195,7 +209,7 @@ configs:
             balance roundrobin
             # /game/x 요청이 /x로 변환되어 game 서비스로 전송됩니다.
             http-request set-path %[path,regsub(^/game,/)]
-            server game game.dev1-game.svc.cluster.local:80 check
+            server game game.dev2-game.svc.cluster.local:80 check
 
         # "/game/somaz" 경로를 처리하는 백엔드
         backend game_somaz_back
@@ -203,19 +217,25 @@ configs:
             balance roundrobin
             # /game/somaz/x 요청이 /game/somaz/x로 변환되어 game-somaz 서비스로 전송됩니다.
             http-request set-path %[path,regsub(^/game/somaz/game/somaz/,/game/somaz/)]
-            server game-somaz game-somaz.dev1-game.svc.cluster.local:80 check
+            server game-somaz game-somaz.dev2-game.svc.cluster.local:80 check
+
+        # "/game/admin" 경로를 처리하는 새 백엔드
+        backend admin_game_somaz_back
+            mode http
+            balance roundrobin
+            # /game/somaz/game/admin/x 요청이 /game/admin/x로 변환되어 admin_game_somaz 서비스로 전송됩니다.
+            http-request set-path %[path,regsub(^/game/somaz/game/admin/,/game/admin/)]
+            server admin_game_somaz game-somaz.dev2-game.svc.cluster.local:80 check
 
         # "/auth" 경로를 처리하는 백엔드
         backend auth_back
             mode http
             balance roundrobin
-            # /auth/x 요청이 /x로 변환되어 auth 서비스로 전송됩니다.
-            # http-request set-path %[path,regsub(^/auth/,/)]
             # /auth/x 요청이 /auth/x로 변환되어 auth 서비스로 전송됩니다.
             http-request set-path %[path,regsub(^/auth/auth/,/auth/)]
-            server auth auth.dev1-auth.svc.cluster.local:80 check
+            server auth auth.dev2-auth.svc.cluster.local:80 check
 
-        # "/log" 경로를 처리하는 백엔드
+        # # "/log" 경로를 처리하는 백엔드
         backend log_back
             mode http
             balance roundrobin
@@ -223,13 +243,14 @@ configs:
             # http-request set-path %[path,regsub(^/log/,/)]
             # /log/x 요청이 /log/x로 변환되어 log 서비스로 전송됩니다.
             http-request set-path %[path,regsub(^/log/log/,/log/)]
-            server log log.dev1-log.svc.cluster.local:80 check
+            # server log log.dev2-log.svc.cluster.local:80 check
+            server auth auth.dev2-auth.svc.cluster.local:80 check
   # - name: promtail-configmap
-  #   namespace: dev1-game
+  #   namespace: dev2-game
   #   datas:
   #     config.yml: |
   #       client:
-  #         url: https://loki.mgmt.somaz.link/loki/api/v1/push
+  #         url: https://loki.mgmt.luxon.run/loki/api/v1/push
   #         tls_config:
   #           insecure_skip_verify: true
   #       positions:
@@ -239,21 +260,21 @@ configs:
   #       target_config:
   #         sync_period: 10s
   #       scrape_configs:
-  #         - job_name: dev1-eh-game-request
+  #         - job_name: dev2-eh-game-request
   #           static_configs:
   #             - targets:
   #                 - localhost
   #               labels:
   #                 job: request
   #                 __path__: "/etc/slog/request.log.*"
-  #         - job_name: dev1-eh-game-analysis
+  #         - job_name: dev2-eh-game-analysis
   #           static_configs:
   #             - targets:
   #                 - localhost
   #               labels:
   #                 job: analysis
   #                 __path__: "/etc/slog/analysis.log.*"
-  #         - job_name: dev1-eh-game-errors
+  #         - job_name: dev2-eh-game-errors
   #           static_configs:
   #             - targets:
   #                 - localhost
