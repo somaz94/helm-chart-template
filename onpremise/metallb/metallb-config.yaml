@@ -1,24 +1,22 @@
-# 사용 apiversion
+# apiversion
 apiVersion: metallb.io/v1beta1 
 kind: IPAddressPool
 metadata:
-  # 해당 IPAddressPool 명과 사용하는 namespace
   name: ip-pool
   namespace: metallb-system
 spec:
   addresses:
-  # 사용할 ip address pool
-  - 111.111.111.111-111.111.111.111
+  # Using ip address pool
+  - 111.111.111.111 - 111.111.111.111 
   autoAssign: true
 --- 
 apiVersion: metallb.io/v1beta1 
-# metalib의 l2모드를 사용한다.
+# Use l2 mode
 kind: L2Advertisement 
 metadata:
   name: l2-network
-  # L2Advertisement이 사용할 namespace명
   namespace: metallb-system
 spec:
-   # 사용할 ipAddressPools을 추가해주는 데 위에 정의한 ipAddressPools을 사용하도록 한다.
+   # ipAddressPools
   ipAddressPools:
     - ip-pool
