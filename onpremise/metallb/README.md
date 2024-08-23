@@ -30,7 +30,7 @@ helm repo add metallb https://metallb.github.io/metallb
 helm install metallb metallb/metallb -n metallb-system --create-namespace
 
 # Example
-helm install -n <네임스페이스> <릴리즈 이름> -f <브랜치별 helm values 파일명>.yaml metallb/metallb
+helm install -n <ramespace> <release Name> -f <overide-values>.yaml metallb/metallb
 
 # No memberlist required when installing with help. Automatically installed.
 k get secret -n metallb-system

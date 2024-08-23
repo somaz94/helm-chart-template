@@ -1,0 +1,10 @@
+apiVersion: v1
+data:
+  tls.crt: LSOtxxxxx
+  tls.key: LS0tL==
+kind: Secret
+metadata:
+  name: tls-somaz-link
+  namespace: kube-system
+type: kubernetes.io/tls
+
