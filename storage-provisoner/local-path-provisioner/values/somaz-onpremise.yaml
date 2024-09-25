@@ -1,0 +1,81 @@
+# Default values for local-path-provisioner.
+
+replicaCount: 1
+fullnameOverride: "local-path"
+
+image:
+  repository: rancher/local-path-provisioner
+  tag: master-head
+  pullPolicy: IfNotPresent
+
+## For creating the StorageClass automatically:
+storageClass:
+  create: true
+  defaultClass: false
+  provisionerName: rancher.io/local-path
+  defaultVolumeType: hostPath
+  name: local-path
+  reclaimPolicy: Retain
+  ## volumeBindingMode field controls when volume binding and dynamic provisioning should occur, can be  "Immediate" or "WaitForFirstConsumer"
+  volumeBindingMode: WaitForFirstConsumer
+  ## Set a path pattern, if unset the default will be used
+  pathPattern: "{{ .PVC.Namespace }}/{{ .PVC.Name }}"
+
+# nodePathMap is the place user can customize where to store the data on each node.
+# 1. If one node is not listed on the nodePathMap, and Kubernetes wants to create volume on it, the paths specified in
+#    DEFAULT_PATH_FOR_NON_LISTED_NODES will be used for provisioning.
+# 2. If one node is listed on the nodePathMap, the specified paths will be used for provisioning.
+#     1. If one node is listed but with paths set to [], the provisioner will refuse to provision on this node.
+#     2. If more than one path was specified, the path would be chosen randomly when provisioning.
+#
+# The configuration must obey following rules:
+# 1. A path must start with /, a.k.a an absolute path.
+# 2. Root directory (/) is prohibited.
+# 3. No duplicate paths allowed for one node.
+# 4. No duplicate node allowed.
+nodePathMap:
+  - node: DEFAULT_PATH_FOR_NON_LISTED_NODES
+    paths:
+      - /monitor # your local path
+
+rbac:
+  # Specifies whether RBAC resources should be created
+  create: true
+
+serviceAccount:
+  # Specifies whether a ServiceAccount should be created
+  create: true
+  # The name of the ServiceAccount to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name:
+
+# select node affinity
+nodeSelector:
+  local-path: enabled
+
+tolerations: 
+  - key: "monitoring"
+    operator: "Equal"
+    effect: "NoSchedule"
+
+affinity: {}
+
+configmap:
+  # specify the config map name
+  name: local-path-config
+  # specify the custom script for setup and teardown
+  setup: |-
+    #!/bin/sh
+    set -eu
+    mkdir -m 0777 -p "$VOL_DIR"
+  teardown: |-
+    #!/bin/sh
+    set -eu
+    rm -rf "$VOL_DIR"
+  helperPod:
+    # Allows to run the helper pod in another namespace. Uses release namespace by default.
+    namespaceOverride: ""
+    name: "helper-pod"
+    annotations: {}
+
+
