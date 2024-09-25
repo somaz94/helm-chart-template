@@ -1,0 +1,224 @@
+expose:
+  type: ingress
+  tls:
+    enabled: true
+    # The source of the tls certificate. Set as "auto", "secret"
+    # or "none" and fill the information in the corresponding section
+    certSource: none
+  ingress:
+    hosts:
+      core: harbor.somaz.link
+    controller: default
+    className: "nginx"
+    annotations:
+      ingress.kubernetes.io/ssl-redirect: "true"
+      ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/client-body-buffer-size: "512M" # 클라이언트로부터 받는 요청 본문(body)의 버퍼 크기를 조정한다. 이 크기가 설정된 값보다 큰 요청 본문이 들어오면 Nginx는 임시 파일을 사용하여 요청을 처리
+  clusterIP:
+    # The name of ClusterIP service
+    name: harbor
+    ports:
+      # The service port Harbor listens on when serving HTTP
+      httpPort: 80
+      # The service port Harbor listens on when serving HTTPS
+      httpsPort: 443
+
+externalURL: https://harbor.somaz.link
+
+persistence:
+  enabled: true
+  resourcePolicy: "keep"
+  persistentVolumeClaim:
+    registry:
+      storageClass: "default"
+      accessMode: ReadWriteOnce
+      size: 5Gi
+    jobservice:
+      jobLog:
+        storageClass: "default"
+        accessMode: ReadWriteOnce
+        size: 1Gi
+    database:
+      storageClass: "default"
+      accessMode: ReadWriteOnce
+      size: 1Gi
+    redis:
+      storageClass: "default"
+      accessMode: ReadWriteOnce
+      size: 1Gi
+    trivy:
+      storageClass: "default"
+      accessMode: ReadWriteOnce
+      size: 5Gi
+  imageChartStorage:
+    disableredirect: false
+    type: filesystem
+    filesystem:
+      rootdirectory: /storage
+      #maxthreads: 100
+
+existingSecretAdminPasswordKey: HARBOR_ADMIN_PASSWORD
+harborAdminPassword: "somazsv2023!!"
+
+# debug, info, warning, error or fatal
+logLevel: info
+
+# Run the migration job via helm hook
+enableMigrateHelmHook: false
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: ture
+
+trace:
+  enabled: false
+
+cache:
+  # default is not enabled.
+  enabled: true
+  # default keep cache for one day.
+  expireHours: 24
+
+
+# If service exposed via "ingress", the Nginx will not be used
+nginx:
+  image:
+    repository: goharbor/nginx-photon
+    tag: v2.11.0
+  automountServiceAccountToken: false
+  replicas: 1
+  revisionHistoryLimit: 10
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 1Gi
+      cpu: 1
+
+portal:
+  image:
+    repository: goharbor/harbor-portal
+    tag: v2.11.0
+  replicas: 1
+  revisionHistoryLimit: 10
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 1Gi
+      cpu: 1
+
+core:
+  image:
+    repository: goharbor/harbor-core
+    tag: v2.11.0
+  replicas: 1
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 1Gi
+      cpu: 1
+
+jobservice:
+  image:
+    repository: goharbor/harbor-jobservice
+    tag: v2.11.0
+  replicas: 1
+  revisionHistoryLimit: 10
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 1Gi
+      cpu: 1
+
+registry:
+  registry:
+    image:
+      repository: goharbor/registry-photon
+      tag: v2.11.0
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
+      limits:
+        memory: 1Gi
+        cpu: 1
+  controller:
+    image:
+      repository: goharbor/harbor-registryctl
+      tag: v2.11.0
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
+      limits:
+        memory: 1Gi
+        cpu: 1
+  replicas: 1
+  revisionHistoryLimit: 10
+  upload_purging:
+    enabled: true
+    age: 168h
+    interval: 24h
+    dryrun: false
+
+trivy:
+  enabled: true
+  image:
+    # repository the repository for Trivy adapter image
+    repository: goharbor/trivy-adapter-photon
+    # tag the tag for Trivy adapter image
+    tag: v2.11.0
+  replicas: 1
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 1Gi
+      cpu: 1
+
+database:
+  type: internal
+  internal:
+    image:
+      repository: goharbor/harbor-db
+      tag: v2.11.0
+    password: "somaz@2020db"
+    # shmSizeLimit: 512Mi
+    shmSizeLimit: 2048Mi
+
+redis:
+  type: internal
+  internal:
+    image:
+      repository: goharbor/redis-photon
+      tag: v2.11.0
+
+exporter:
+  image:
+    repository: goharbor/harbor-exporter
+    tag: v2.11.0
+  replicas: 1
+  revisionHistoryLimit: 10
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 1Gi
+      cpu: 1
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true  
