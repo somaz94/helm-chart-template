@@ -15,7 +15,7 @@ storageClass:
   provisionerName: rancher.io/local-path
   defaultVolumeType: hostPath
   name: local-path
-  reclaimPolicy: Retain
+  reclaimPolicy: Delete
   ## volumeBindingMode field controls when volume binding and dynamic provisioning should occur, can be  "Immediate" or "WaitForFirstConsumer"
   volumeBindingMode: WaitForFirstConsumer
   ## Set a path pattern, if unset the default will be used
