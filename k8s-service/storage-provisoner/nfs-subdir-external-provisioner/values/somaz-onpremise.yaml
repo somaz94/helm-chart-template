@@ -18,11 +18,10 @@ storageClass:
   create: true
   provisionerName: nfs-provisioner
   defaultClass: true
-  name: default
+  name: nfs-client
   allowVolumeExpansion: true
-  reclaimPolicy: Retain
-  archiveOnDelete: true
-  onDelete: retain
+  reclaimPolicy: Delete
+  archiveOnDelete: false
   # pathPattern: ${.PVC.namespace}/${.PVC.name}
   pathPattern: ${.PVC.namespace}/${.PVC.annotations.nfs.io/storage-path}
   accessModes: ReadWriteOnce
