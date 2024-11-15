@@ -10,8 +10,13 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: "362aa67"
 
-imagePullSecretCreate:
+imageCredentials:
   enabled: false
+  registry: 
+  username: 
+  password:
+  email: # email 
+  name: 
 
 imagePullSecrets: {}
 
