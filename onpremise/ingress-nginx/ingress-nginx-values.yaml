@@ -41,7 +41,7 @@ controller:
     # -- Enable controller services or not. This does not influence the creation of either the admission webhook or the metrics service.
     enabled: true
     type: LoadBalancer
-    loadBalancerIP: ""
+    loadBalancerIP: "" # write lb ip here
     externalTrafficPolicy: ""
   # -- Additional containers to be added to the controller pod.
   # See https://github.com/lemonldap-ng-controller/lemonldap-ng-controller as example.
