@@ -22,15 +22,21 @@ This repository contains Helm chart templates specifically designed to work seam
 
 <br/>
 
-## 📁 argocd-applicationset
+## 📁 k8s-service
 
-Contains YAML files for configuring ArgoCD application sets.
+- 📁 argocd: Helm chart and YAML files for ArgoCD.
+- 📁 harbor: Helm chart for Harbor.
+- 📁 monitoring: Helm chart for monitoring(Prometheus, Grafana, Loki, Thanos, etc.)
+- 📁 storage-provisioner: Helm chart for storage provisioner(Local, NFS))
+- 📁 ingress-nginx: Helm chart for ingress-nginx.
+- 📁 metallb: YAML files for metallb.
 
 <br/>
 
 ## 📁 Onpremise
 
 - 📂 ke-use-nfs-server: Template for NFS server usage on a Kubernetes cluster deployed on-premise.
+- 📂 ke-use-nfs-server-sidecar-fluentbit: Template for NFS server usage on a Kubernetes cluster deployed on-premise with FluentBit sidecar.
 
 <br/>
 
