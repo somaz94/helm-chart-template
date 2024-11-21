@@ -18,6 +18,7 @@ spec:
               revision: HEAD
               directories:
                 - path: onpremise/ke-use-nfs-server/*
+              # refreshInterval: 180s # default is 180s
   template:
     metadata:
       name: '{{values.environment}}-{{values.project}}-{{path.basename}}'
@@ -38,6 +39,7 @@ spec:
         automated:
           prune: true
           selfHeal: true
+        # preserveResourcesOnDeletion: false # default is true 
         syncOptions:
           - CreateNamespace=true
           - ApplyOutOfSyncOnly=true

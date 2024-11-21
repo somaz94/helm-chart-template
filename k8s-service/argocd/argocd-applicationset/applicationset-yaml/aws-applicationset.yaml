@@ -23,6 +23,7 @@ spec:
               revision: HEAD
               directories:
                 - path: aws/eks_fargate_use_efs/* # path
+              # refreshInterval: 180s # default is 180s
   template:
     metadata:
       name: '{{values.environment}}-{{values.project}}-{{path.basename}}'

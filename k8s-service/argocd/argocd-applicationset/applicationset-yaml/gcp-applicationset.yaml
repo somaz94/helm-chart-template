@@ -18,6 +18,7 @@ spec:
               revision: HEAD
               directories:
                 - path: gcp/gke_use_nfs_server/* # Path
+              # refreshInterval: 180s # default is 180s
   template:
     metadata:
       name: '{{values.environment}}-{{values.project}}-{{path.basename}}'
