@@ -77,6 +77,9 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
+# livenessProbe: {}
+# readinessProbe: {}
+
 autoscaling:
   enabled: false
   minReplicas: 1
