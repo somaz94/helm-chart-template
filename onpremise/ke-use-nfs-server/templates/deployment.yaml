@@ -30,7 +30,7 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       volumes:
         {{- range $persistentVolumeClaim := .Values.persistentVolumeClaims }}
-        - name: {{ $persistentVolumeClaim.type }}
+        - name: {{ $persistentVolumeClaim.name }}
           persistentVolumeClaim:
             claimName: {{ $persistentVolumeClaim.name }}
         {{- end}}
@@ -56,7 +56,7 @@ spec:
               protocol: TCP
           volumeMounts:
             {{- range $persistentVolumeClaim := .Values.persistentVolumeClaims }}
-            - name: {{ $persistentVolumeClaim.type }}
+            - name: {{ $persistentVolumeClaim.name }}
               mountPath: {{ $persistentVolumeClaim.mountPath }}
             {{- end}}
           livenessProbe:
