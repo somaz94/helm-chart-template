@@ -94,14 +94,17 @@ spec:
 | Annotation | Description | Example |
 |------------|-------------|---------|
 | `external-dns.alpha.kubernetes.io/hostname` | Specifies the hostname for DNS records | `app.example.com` |
+| `external-dns.alpha.kubernetes.io/target` | Overrides the target of DNS records | `elb.example.com` |
 | `external-dns.alpha.kubernetes.io/ttl` | Sets Time-To-Live for DNS records | `"300"` |
+| `external-dns.alpha.kubernetes.io/alias` | Creates an ALIAS record instead of CNAME (AWS only) | `"true"` |
+| `external-dns.alpha.kubernetes.io/set-identifier` | Sets identifier for routing policies (AWS only) | `"prod"` |
+| `external-dns.alpha.kubernetes.io/aws-weight` | Sets weight for Route53 weighted records | `"100"` |
 
 <br/>
 
 ## Additional Notes
 - Make sure to replace `<YOUR_GCP_PROJECT>` and `<YOUR_DOMAIN>` with your actual values
 - Verify that your cluster has the necessary GCP credentials configured
-- For more detailed configuration options, refer to the [External DNS documentation](https://github.com/kubernetes-sigs/external-dns)
+- For more detailed configuration options, refer to the [External DNS documentation GCP](https://github.com/kubernetes-sigs/external-dns/blob/master/docs/tutorials/gcp.md)
 - If Cloud DNS and GKE are in different projects, specify Cloud DNS projects under the '--google-project' flag
 - Service Account settings are different when you use Workflow Identity
-- [External DNS documentation GCP](https://github.com/kubernetes-sigs/external-dns/blob/master/docs/tutorials/gcp.md)

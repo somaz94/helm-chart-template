@@ -143,5 +143,4 @@ spec:
 ## Additional Notes
 - Make sure to replace `<YOUR_AWS_REGION>` and `<YOUR_DOMAIN>` with your actual values
 - Verify that your cluster has the necessary AWS credentials configured
-- For more detailed configuration options, refer to the [External DNS documentation](https://github.com/kubernetes-sigs/external-dns)
-- [External DNS documentation AWS](https://github.com/kubernetes-sigs/external-dns/blob/master/docs/tutorials/aws.md)
+- For more detailed configuration options, refer to the [External DNS documentation AWS](https://github.com/kubernetes-sigs/external-dns/blob/master/docs/tutorials/aws.md)
