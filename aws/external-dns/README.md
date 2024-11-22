@@ -4,10 +4,9 @@
 
 ## Table of Contents
 1. [Installing External DNS](#installing-external-dns)
-2. [Configuration Settings](#configuration-settings)
-3. [Adding IAM Policy](#adding-iam-policy)
-4. [Annotations Examples](#annotations-examples)
-5. [Additional Notes](#additional-notes)
+2. [Adding IAM Policy](#adding-iam-policy)
+3. [Annotations Examples](#annotations-examples)
+4. [Additional Notes](#additional-notes)
 
 <br/>
 
@@ -22,10 +21,10 @@ kubectl create namespace external-dns
 # Using direct helm install
 helm install external-dns external-dns/external-dns \
   --namespace external-dns \
-  --set provider=aws \
-  --set aws.region=<YOUR_AWS_REGION> \
+  --set provider.name=aws \
   --set domainFilters[0]=<YOUR_DOMAIN> \
-  --set txtOwnerId=<YOUR_IDENTIFIER>
+  --set txtOwnerId=<YOUR_HOSTED_ZONE_ID> \
+  --set policy=upsert-only \
 
 # Or using values file (recommended)
 
@@ -33,23 +32,6 @@ helm install external-dns external-dns/external-dns \
 helm install external-dns external-dns/external-dns \
   --namespace external-dns \
   -f route53-values.yaml
-```
-
-<br/>
-
-## Configuration Settings
-External DNS requires proper AWS configuration to manage Route53 records. Make sure to configure the following:
-
-```yaml
-# Example values.yaml configuration
-provider: aws
-aws:
-  region: us-east-1
-  zoneType: public
-domainFilters:
-  - example.com
-policy: sync
-txtOwnerId: my-identifier
 ```
 
 <br/>
@@ -162,3 +144,4 @@ spec:
 - Make sure to replace `<YOUR_AWS_REGION>` and `<YOUR_DOMAIN>` with your actual values
 - Verify that your cluster has the necessary AWS credentials configured
 - For more detailed configuration options, refer to the [External DNS documentation](https://github.com/kubernetes-sigs/external-dns)
+- [External DNS documentation AWS](https://github.com/kubernetes-sigs/external-dns/blob/master/docs/tutorials/aws.md)
