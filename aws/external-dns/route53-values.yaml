@@ -23,7 +23,7 @@ serviceAccount:
   # -- Annotations to add to the service account.
   annotations: {}
   # -- (string) If this is set and `serviceAccount.create` is `true` this will be used for the created `ServiceAccount` name, if set and `serviceAccount.create` is `false` then this will define an existing `ServiceAccount` to use.
-  #  # AWS IAM role for service account를 사용하는 경우
+  #  # EKS IRSA (Recommended)
   #   eks.amazonaws.com/role-arn: "arn:aws:iam::ACCOUNT-ID:role/your-role"
   name:
   # -- Set this to `false` to [opt out of API credential automounting](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#opt-out-of-api-credential-automounting) for the `ServiceAccount`.
@@ -49,6 +49,21 @@ rbac:
 sources:
   - service
   - ingress
+  
+# AWS Credentials Secret (Non-EKS)
+# env:
+#   - name: AWS_ACCESS_KEY_ID
+#     valueFrom:
+#       secretKeyRef:
+#         name: aws-credentials
+#         key: access-key-id
+#   - name: AWS_SECRET_ACCESS_KEY
+#     valueFrom:
+#       secretKeyRef:
+#         name: aws-credentials
+#         key: secret-access-key
+#   - name: AWS_REGION
+#     value: "ap-northeast-2"
 
 # -- How DNS records are synchronized between sources and providers; available values are `sync` & `upsert-only`.
 # DNS 레코드 동기화 정책

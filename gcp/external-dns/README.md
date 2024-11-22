@@ -4,7 +4,7 @@
 
 ## Table of Contents
 1. [Installing External DNS](#installing-external-dns)
-2. [Adding IAM Policy](#adding-iam-policy)
+2. [GCP Credentials Configuration](#gcp-credentials-configuration)
 3. [Annotations Examples](#annotations-examples)
 4. [Additional Notes](#additional-notes)
 
@@ -41,30 +41,70 @@ helm install external-dns external-dns/external-dns \
 
 <br/>
 
-## Adding IAM Policy
-External DNS needs permissions to modify Cloud DNS records. Create a Service Account with the following roles:
+## GCP Credentials Configuration
+External DNS requires authentication to access Cloud DNS. Follow these steps:
 
+### 1. Create GCP Service Account
+First, create a Service Account with DNS Administrator role:
 ```bash
-# Create a Service Account
+# Create Service Account and grant permissions
 export SA_NAME="external-dns-sa"
 export PROJECT_ID="your-project-id"
 
 gcloud iam service-accounts create $SA_NAME \
   --display-name "External DNS"
 
-# Grant DNS Administrator role
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --member="serviceAccount:$SA_NAME@$PROJECT_ID.iam.gserviceaccount.com" \
   --role="roles/dns.admin"
+```
 
-# Create and download the key
+### 2. Configure Authentication
+Choose one of the following authentication methods:
+
+#### A. GKE Workload Identity (Recommended)
+For GKE clusters, bind the Kubernetes ServiceAccount to the GCP ServiceAccount:
+```bash
+# Bind the IAM Service Account to the Kubernetes Service Account
+gcloud iam service-accounts add-iam-policy-binding \
+    $SA_NAME@$PROJECT_ID.iam.gserviceaccount.com \
+    --role roles/iam.workloadIdentityUser \
+    --member "serviceAccount:$PROJECT_ID.svc.id.goog[external-dns/external-dns]"
+```
+
+Then update values.yaml:
+```yaml
+serviceAccount:
+  annotations:
+    iam.gke.io/gcp-service-account: external-dns@project-id.iam.gserviceaccount.com
+```
+
+#### B. Service Account Key (Non-GKE)
+For non-GKE environments, create and use a Service Account key:
+```bash
+# Download the key and create Kubernetes Secret
 gcloud iam service-accounts keys create credentials.json \
   --iam-account=$SA_NAME@$PROJECT_ID.iam.gserviceaccount.com
 
-# Create Kubernetes Secret
 kubectl create secret generic external-dns \
   --from-file=credentials.json \
   --namespace external-dns
+```
+
+Then update values.yaml:
+```yaml
+env:
+  - name: GOOGLE_APPLICATION_CREDENTIALS
+    value: /etc/secrets/service-account/credentials.json
+
+extraVolumes:
+  - name: google-service-account
+    secret:
+      secretName: external-dns
+
+extraVolumeMounts:
+  - name: google-service-account
+    mountPath: /etc/secrets/service-account/
 ```
 
 <br/>

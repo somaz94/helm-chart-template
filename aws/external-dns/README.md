@@ -5,8 +5,9 @@
 ## Table of Contents
 1. [Installing External DNS](#installing-external-dns)
 2. [Adding IAM Policy](#adding-iam-policy)
-3. [Annotations Examples](#annotations-examples)
-4. [Additional Notes](#additional-notes)
+3. [AWS Credentials Configuration](#aws-credentials-configuration)
+4. [Annotations Examples](#annotations-examples)
+5. [Additional Notes](#additional-notes)
 
 <br/>
 
@@ -64,6 +65,44 @@ External DNS needs permissions to modify Route53 records. Create an IAM policy w
         }
     ]
 }
+```
+
+<br/>
+
+## AWS Credentials Configuration
+External DNS requires authentication to access AWS Route53. There are two ways to configure this:
+
+### 1. EKS IRSA (Recommended)
+For EKS clusters, use IRSA (IAM Role for Service Account):
+```yaml
+serviceAccount:
+  annotations:
+    eks.amazonaws.com/role-arn: "arn:aws:iam::ACCOUNT-ID:role/external-dns"
+```
+
+### 2. AWS Credentials Secret (Non-EKS)
+For non-EKS environments, create and use AWS credentials secret:
+```bash
+# Create AWS credentials secret
+kubectl create secret generic aws-credentials \
+  --from-literal=access-key-id=AKIAXXXXXXXXXXXXXXXX \
+  --from-literal=secret-access-key=XXXXXXXXXXXXXXXXX \
+  --namespace external-dns
+
+# Update values.yaml to use credentials
+env:
+  - name: AWS_ACCESS_KEY_ID
+    valueFrom:
+      secretKeyRef:
+        name: aws-credentials
+        key: access-key-id
+  - name: AWS_SECRET_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: aws-credentials
+        key: secret-access-key
+  - name: AWS_REGION
+    value: "ap-northeast-2"  # Specify your AWS region
 ```
 
 <br/>
