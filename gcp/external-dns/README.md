@@ -94,11 +94,8 @@ spec:
 | Annotation | Description | Example |
 |------------|-------------|---------|
 | `external-dns.alpha.kubernetes.io/hostname` | Specifies the hostname for DNS records | `app.example.com` |
-| `external-dns.alpha.kubernetes.io/target` | Overrides the target of DNS records | `elb.example.com` |
+| `external-dns.alpha.kubernetes.io/target` | Overrides the target of DNS records | `34.120.10.11` |
 | `external-dns.alpha.kubernetes.io/ttl` | Sets Time-To-Live for DNS records | `"300"` |
-| `external-dns.alpha.kubernetes.io/alias` | Creates an ALIAS record instead of CNAME (AWS only) | `"true"` |
-| `external-dns.alpha.kubernetes.io/set-identifier` | Sets identifier for routing policies (AWS only) | `"prod"` |
-| `external-dns.alpha.kubernetes.io/aws-weight` | Sets weight for Route53 weighted records | `"100"` |
 
 <br/>
 
