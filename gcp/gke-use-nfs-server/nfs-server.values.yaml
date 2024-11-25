@@ -169,6 +169,7 @@ configs:
                 labels:
                   job: errors
                   __path__: "/etc/slog/errors.log.*"
+                  
   - name: somaz-config
     namespace: somaz
     datas:
