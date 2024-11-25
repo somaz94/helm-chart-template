@@ -209,9 +209,18 @@ externalSecrets:
         name: SOMAZ_BASTION_PEM_KEY
 
 storageClasses:
-  - name: somaz-efs-sc
+  - name: efs-sc
     provisioner: efs.csi.aws.com
-    reclaimPolicy: Retain
+    provisioningMode: efs-ap
+    fileSystemId: fs-92107410
+    directoryPerms: "700"
+    gidRangeStart: "1000"
+    gidRangeEnd: "2000"
+    basePath: "/dynamic_provisioning"
+    subPathPattern: "${.PVC.namespace}/${.PVC.name}"
+    ensureUniqueDirectory: "true"
+    reuseAccessPoint: "false"
+    allowVolumeExpansion: true
 
 persistentVolumes:
   - name: somaz-efs-pv
