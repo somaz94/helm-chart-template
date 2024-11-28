@@ -1,0 +1,168 @@
+# -- Override the deployment namespace; defaults to .Release.Namespace
+namespaceOverride: "ingress-nginx"
+
+controller:
+  containerPort:
+    http: 80
+    https: 443
+  config:
+    proxy-body-size: "0"
+  extraArgs:
+    default-ssl-certificate: "kube-system/tls-somaz-link"
+  autoscaling:
+    enabled: true
+    annotations: {}
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 50
+    targetMemoryUtilizationPercentage: 50
+    behavior: 
+      scaleDown:
+        stabilizationWindowSeconds: 300
+        policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 180
+      scaleUp:
+        stabilizationWindowSeconds: 300
+        policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 60
+  # Mutually exclusive with hpa autoscaling
+  keda:
+    apiVersion: "keda.sh/v1alpha1"
+    enabled: false
+  service:
+    # -- Enable controller services or not. This does not influence the creation of either the admission webhook or the metrics service.
+    enabled: true
+    type: LoadBalancer
+    loadBalancerIP: "" # write lb ip here
+    externalTrafficPolicy: ""
+  # -- Additional containers to be added to the controller pod.
+  # See https://github.com/lemonldap-ng-controller/lemonldap-ng-controller as example.
+  extraContainers: 
+    - name: fluent-bit
+      image: fluent/fluent-bit:latest
+      imagePullPolicy: IfNotPresent
+      ports:
+        - containerPort: 2020
+      volumeMounts:
+        - name: shared-data
+          mountPath: /var/log
+        - name: fluent-bit-config
+          mountPath: /fluent-bit/etc
+      resources:
+        limits:
+          memory: 500Mi
+        requests:
+          cpu: 100m
+          memory: 100Mi
+
+  # -- Additional volumeMounts to the controller main container.
+  extraVolumeMounts:
+    - name: shared-data
+      mountPath: /var/log/nginx
+    - name: fluent-bit-config
+      mountPath: /fluent-bit/etc/
+
+  # -- Additional volumes to the controller pod.
+  extraVolumes:
+    - name: shared-data
+      emptyDir: {}
+    - name: fluent-bit-config
+      configMap:
+        name: fluent-bit-config  
+  extraConfigMaps:
+    - name: fluent-bit-config
+      labels:
+        type: fluent-bit
+      data:
+        fluent-bit.conf: |
+          [SERVICE]
+              Flush        1
+              Log_Level    info
+              Parsers_File parsers.conf
+
+          [INPUT]
+              Name tail
+              Path /var/log/nginx/access.log
+              Parser nginx_access_parser
+              Tag nginx_access
+
+          [INPUT]
+              Name tail
+              Path /var/log/nginx/error.log
+              Parser nginx_error_parser
+              Tag nginx_error
+
+          [FILTER]
+              Name    grep
+              Match   nginx_access
+              Regex   log .*fgn.*
+
+          [FILTER]
+              Name    modify
+              Match   nginx_access
+              Add     log_type nginx_access
+
+          [FILTER]
+              Name    modify
+              Match   nginx_error
+              Add     log_type nginx_error
+
+          [OUTPUT]
+              Name stdout
+              Match *
+
+          [OUTPUT]
+              Name loki
+              Match *
+              Host 10.216.5.75
+              Port 31000
+              URI /loki/api/v1/push
+              tls On
+              Labels job=fluent-bit, log_type=$log_type
+
+        parsers.conf: |
+          [PARSER]
+              Name        nginx_access_parser
+              Format      regex
+              Regex       ^(?<remote_addr>[^ ]*) - (?<remote_user>[^ ]*) \[(?<time>[^\]]*)\] "(?<method>\S+) (?<request>[^ ]*) (?<http_protocol>[^"]*)" (?<status>[^ ]*) (?<body_bytes_sent>[^ ]*) "(?<http_referer>[^"]*)" "(?<http_user_agent>[^"]*)" (?<request_length>[^ ]*) (?<request_time>[^ ]*) \[(?<upstream_name>[^\]]*)\] \[(?<upstream_addr>[^\]]*)\] (?<upstream_response_length>[^ ]*) (?<upstream_response_time>[^ ]*) (?<upstream_status>[^ ]*) (?<request_id>[^ ]*)$
+              Time_Key    time
+              Time_Format  %d/%b/%Y:%H:%M:%S %z
+
+          [PARSER]
+              Name        nginx_error_parser
+              Format      regex
+              Regex       ^(?<time>\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}) \[(?<log_level>\w+)\] (?<process_info>\d+#\d+): (?<message>.*)$
+              Time_Key    time
+              Time_Format  %Y/%m/%d %H:%M:%S
+
+  opentelemetry:
+    enabled: false
+    name: opentelemetry
+    image:
+      registry: registry.k8s.io
+      image: ingress-nginx/opentelemetry
+  admissionWebhooks:
+    name: admission
+    enabled: true
+  metrics:
+    port: 10254
+    portName: metrics
+revisionHistoryLimit: 10
+## Default 404 backend
+##
+defaultBackend:
+  ##
+  enabled: false
+rbac:
+  create: true
+  scope: false
+podSecurityPolicy:
+  enabled: false
+serviceAccount:
+  create: true
+  name: ""
+  automountServiceAccountToken: true
