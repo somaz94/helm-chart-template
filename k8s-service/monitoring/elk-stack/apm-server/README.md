@@ -73,7 +73,7 @@ kubectl get pods -n monitoring | grep apm-server
 
 2. Check APM indices in Elasticsearch:
 ```bash
-curl -k -u "elastic:<password>" "http://elasticsearch:9200/_cat/indices/apm-*?v"
+curl -k -u "elastic:<password>" "https://<elasticsearch_url>/_cat/indices/apm-*?v"
 ```
 
 3. View APM data in Kibana:

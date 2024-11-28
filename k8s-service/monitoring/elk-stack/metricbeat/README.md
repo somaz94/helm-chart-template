@@ -74,7 +74,7 @@ kubectl get pods -n monitoring | grep metricbeat
 2. Check Metricbeat indices in Elasticsearch:
 
 ```bash
-curl -k -u "elastic:<password>" "https://elasticsearch.somaz.link/_cat/indices/.ds-metricbeat-*?v"
+curl -k -u "elastic:<password>" "https://<elasticsearch_url>/_cat/indices/.ds-metricbeat-*?v"
 ```
 
 3. View metrics in Kibana:

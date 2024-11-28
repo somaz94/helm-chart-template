@@ -50,10 +50,10 @@ kubectl get secrets --namespace=monitoring elasticsearch-master-credentials -ojs
 
 ### 1. Basic Health Check
 You can verify the installation by accessing the Elasticsearch endpoint:
-- URL: https://elasticsearch.somaz.link/
+- URL: https://<elasticsearch_url>
 
 ```bash
-curl -k -u "elastic:${PASSWORD}" "https://elasticsearch.somaz.link/"
+curl -k -u "elastic:${PASSWORD}" "https://<elasticsearch_url>"
 ```
 
 Example response:
@@ -82,16 +82,16 @@ After installation is complete, you can check
 
 ```bash
 # Check Cluster Health
-curl -k -u "elastic:${PASSWORD}" "https://elasticsearch.somaz.link//_cluster/health"
+curl -k -u "elastic:${PASSWORD}" "https://<elasticsearch_url>/_cluster/health"
 
 # Check Indices
-curl -k -u "elastic:${PASSWORD}" "https://elasticsearch.somaz.link//_cat/indices"
+curl -k -u "elastic:${PASSWORD}" "https://<elasticsearch_url>/_cat/indices"
 
 # Check Nodes
-curl -k -u "elastic:${PASSWORD}" "https://elasticsearch.somaz.link/_cat/nodes"
+curl -k -u "elastic:${PASSWORD}" "https://<elasticsearch_url>/_cat/nodes"
 
 # Check Shards
-curl -k -u "elastic:${PASSWORD}" "https://elasticsearch.somaz.link/_cat/shards"
+curl -k -u "elastic:${PASSWORD}" "https://<elasticsearch_url>/_cat/shards"
 ```
 
 ## Configuration
