@@ -7,9 +7,19 @@ global:
   ## Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/#ssh-known-host-public-keys
 
 configs:
+  cm:
+    timeout.reconciliation: 180s # default is 180s
   params:
     create: true
     server.insecure: true
+  # SSH known hosts for Git repositories
+  ## Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/#ssh-known-host-public-keys
+  ssh:
+    # -- Additional known hosts for private repositories
+    extraHosts: |
+      gitlab.somaz.link ssh-rsa AAAAB3...
+      gitlab.somaz.link ecdsa-sha2-nistp256 AAAA...
+      gitlab.somaz.link ssh-ed25519 AAAA...
 
 ## Application controller
 controller:
