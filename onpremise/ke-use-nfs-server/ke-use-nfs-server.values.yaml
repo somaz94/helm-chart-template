@@ -8,7 +8,7 @@ image:
   repository: harbor.somaz.link/somaz/game
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "362aa67"
+  tag: "a011224"
 
 imageCredentials:
   enabled: false
