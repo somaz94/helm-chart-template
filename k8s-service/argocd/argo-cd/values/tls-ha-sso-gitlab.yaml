@@ -16,7 +16,7 @@ configs:
           id: gitlab
           name: GitLab
           config:
-            baseURL: http://gitlab.somaz.link # TODO: change to your GitLab domain
+            baseURL: https://gitlab.somaz.link # TODO: change to your GitLab domain
             clientID: cd5caac... # TODO: change to your GitLab client ID
             clientSecret: gloas-a9... # TODO: change to your GitLab client secret
             redirectURI: https://argocd.somaz.link/api/dex/callback # TODO: change to your Argo CD domain
