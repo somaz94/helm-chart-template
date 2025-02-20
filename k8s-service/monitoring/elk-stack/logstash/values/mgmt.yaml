@@ -17,6 +17,14 @@ logstashPipeline:
         password => '${ELASTICSEARCH_PASSWORD}'
         index => "logstash-%{+YYYY.MM.dd}"    # 날짜별 인덱스 패턴
       }
+      # Filebeat 로그를 파일로 저장
+      file {
+        path => "/usr/share/logstash/data/logs/filebeat-%{+YYYY-MM-dd}.log.gz"  # .gz 확장자 추가
+        codec => json_lines
+        create_if_deleted => true
+        write_behavior => "append"
+        gzip => true          # 로그 압축 활성화
+      }
     }
 
 # Allows you to add any pattern files in your custom pattern dir
