@@ -1,0 +1,48 @@
+replicaCount: 1
+strategyType: Recreate
+
+image:
+  repository: registry.k8s.io/sig-storage/nfs-subdir-external-provisioner
+  tag: v4.0.2
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+
+nfs:
+  server: <nfs_server ip>
+  path: <nfs path>
+  mountOptions: 
+  volumeName: nfs-subdir-external-provisioner-root-nopath
+  reclaimPolicy: Retain
+
+storageClass:
+  create: true
+  provisionerName: nfs-provisioner
+  defaultClass: false
+  name: nfs-client-nopath
+  allowVolumeExpansion: true
+  reclaimPolicy: Delete
+  archiveOnDelete: false
+  pathPattern: 
+  # pathPattern: ${.PVC.namespace}/${.PVC.annotations.nfs.io/storage-path}
+  accessModes: ReadWriteOnce
+  volumeBindingMode: WaitForFirstConsumer
+  annotations: {}
+
+leaderElection:
+  enabled: true
+
+rbac:
+  create: true
+
+
+serviceAccount:
+  create: true
+
+resources:
+  limits:
+   cpu: 100m
+   memory: 128Mi
+  requests:
+   cpu: 50m
+   memory: 64Mi
+
