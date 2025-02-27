@@ -1,0 +1,374 @@
+
+global:
+  # -- Default domain used by all components
+  ## Used for ingresses, certificates, SSO, notifications, etc.
+  domain: argocd.somaz.link
+  # SSH known hosts for Git repositories
+  ## Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/#ssh-known-host-public-keys
+
+configs:
+  cm:
+    timeout.reconciliation: 180s # default is 180s
+  params:
+    create: true
+    server.insecure: false  # default: false
+  # SSH known hosts for Git repositories
+  ## Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/#ssh-known-host-public-keys
+  ssh:
+    # -- Additional known hosts for private repositories
+    extraHosts: |
+      gitlab.somaz.link ssh-rsa AAAAB3...
+      gitlab.somaz.link ecdsa-sha2-nistp256 AAAA...
+      gitlab.somaz.link ssh-ed25519 AAAA...
+
+## Application controller
+controller:
+  replicas: 2
+
+## Dex
+dex:
+  # -- Enable dex
+  enabled: true
+
+## Redis
+redis:
+  # -- Enable redis
+  enabled: true
+
+## Redis-HA subchart replaces custom redis deployment when `redis-ha.enabled=true`
+# Ref: https://github.com/DandyDeveloper/charts/blob/master/charts/redis-ha/values.yaml
+redis-ha:
+  # -- Enables the Redis HA subchart and disables the custom Redis single node deployment
+  enabled: true
+
+redisSecretInit:
+  # -- Enable Redis secret initialization. If disabled, secret must be provisioned by alternative methods
+  enabled: true
+
+## Server
+server:
+  replicas: 1
+  # Argo CD server ingress configuration
+  ingress:
+    # -- Enable an ingress resource for the Argo CD server
+    enabled: true
+    ## Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/#option-1-ssl-passthrough
+    annotations:
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "false"   # Disable SSL redirection
+      nginx.ingress.kubernetes.io/ssl-passthrough: "false"      # Disable SSL passthrough
+      # nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      # nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+
+    # -- Defines which ingress controller will implement the resource
+    ingressClassName: "nginx"
+
+    # -- The path to Argo CD server
+    path: /
+
+    # -- Ingress path type. One of `Exact`, `Prefix` or `ImplementationSpecific`
+    pathType: Prefix
+    # -- Enable TLS configuration for the hostname defined at `applicationSet.webhook.ingress.hostname`
+    ## TLS certificate will be retrieved from a TLS secret with name:`argocd-applicationset-controller-tls`
+    tls: true
+
+  certificate:
+    # -- Deploy a Certificate resource (requires cert-manager)
+    enabled: true
+    # -- Certificate primary domain (commonName)
+    # @default -- `""` (defaults to global.domain)
+    domain: "argocd.somaz.link"
+    # -- Certificate Subject Alternate Names (SANs)
+    additionalHosts: []
+    # -- The requested 'duration' (i.e. lifetime) of the certificate.
+    # @default -- `""` (defaults to 2160h = 90d if not specified)
+    ## Ref: https://cert-manager.io/docs/usage/certificate/#renewal
+    duration: ""
+    # -- How long before the expiry a certificate should be renewed.
+    # @default -- `""` (defaults to 360h = 15d if not specified)
+    ## Ref: https://cert-manager.io/docs/usage/certificate/#renewal
+    renewBefore: ""
+    # Certificate issuer
+    ## Ref: https://cert-manager.io/docs/concepts/issuer
+    issuer:
+      # -- Certificate issuer group. Set if using an external issuer. Eg. `cert-manager.io`
+      group: "cert-manager.io"
+      # -- Certificate issuer kind. Either `Issuer` or `ClusterIssuer`
+      kind: "ClusterIssuer"
+      # -- Certificate issuer name. Eg. `letsencrypt`
+      name: "route53-issuer" # TODO: change to <your-issuer-name>
+    # Private key of the certificate
+    privateKey:
+      # -- Rotation policy of private key when certificate is re-issued. Either: `Never` or `Always`
+      rotationPolicy: Never
+      # -- The private key cryptography standards (PKCS) encoding for private key. Either: `PCKS1` or `PKCS8`
+      encoding: PKCS1
+      # -- Algorithm used to generate certificate private key. One of: `RSA`, `Ed25519` or `ECDSA`
+      algorithm: RSA
+      # -- Key bit size of the private key. If algorithm is set to `Ed25519`, size is ignored.
+      size: 2048
+    # -- Annotations to be applied to the Server Certificate
+    annotations: {}
+    # -- Usages for the certificate
+    ### Ref: https://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.KeyUsage
+    usages: []
+    # -- Annotations that allow the certificate to be composed from data residing in existing Kubernetes Resources
+    secretTemplateAnnotations: {}
+
+## Repo Server
+repoServer:
+  replicas: 2
+
+## ApplicationSet controller
+applicationSet:
+  replicas: 2
+## Notifications controller
+notifications:
+  # -- Enable notifications controller
+  enabled: true
+
+  secret:
+    create: true
+    items:
+      slack-token: "xoxb-slack-token"
+  
+  notifiers:
+    service.slack: |
+      token: $slack-token
+      username: ArgoCD
+      icon: https://argo-cd.readthedocs.io/en/stable/assets/logo.png
+      channel: "#your-channel-name"
+  
+  templates:
+    template.app-deployed: |
+      message: |
+        :white_check_mark: 애플리케이션 {{.app.metadata.name}}이(가) 성공적으로 배포되었습니다.
+      slack:
+        attachments: |
+          [{
+            "title": "{{ .app.metadata.name}} - 배포 성공",
+            "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+            "color": "#18be52",
+            "fields": [
+            {
+              "title": "동기화 상태",
+              "value": "{{.app.status.sync.status}}",
+              "short": true
+            },
+            {
+              "title": "건강 상태",
+              "value": "{{.app.status.health.status}}",
+              "short": true
+            },
+            {
+              "title": "리비전",
+              "value": "{{.app.status.sync.revision}}",
+              "short": true
+            },
+            {
+              "title": "네임스페이스",
+              "value": "{{.app.spec.destination.namespace}}",
+              "short": true
+            }
+            ]
+          }]
+    
+    template.app-health-degraded: |
+      message: |
+        :red_circle: 애플리케이션 {{.app.metadata.name}}의 상태가 저하되었습니다.
+      slack:
+        attachments: |
+          [{
+            "title": "{{ .app.metadata.name}} - 상태 저하",
+            "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+            "color": "#E96D76",
+            "fields": [
+            {
+              "title": "동기화 상태",
+              "value": "{{.app.status.sync.status}}",
+              "short": true
+            },
+            {
+              "title": "건강 상태",
+              "value": "{{.app.status.health.status}}",
+              "short": true
+            },
+            {
+              "title": "네임스페이스",
+              "value": "{{.app.spec.destination.namespace}}",
+              "short": true
+            }
+            {{range $index, $c := .app.status.conditions}}
+            ,{
+              "title": "{{$c.type}}",
+              "value": "{{$c.message}}",
+              "short": false
+            }
+            {{end}}
+            ]
+          }]
+    
+    template.app-sync-failed: |
+      message: |
+        :x: 애플리케이션 {{.app.metadata.name}}의 동기화가 실패했습니다.
+      slack:
+        attachments: |
+          [{
+            "title": "{{ .app.metadata.name}} - 동기화 실패",
+            "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}?operation=true",
+            "color": "#E96D76",
+            "fields": [
+            {
+              "title": "동기화 상태",
+              "value": "{{.app.status.sync.status}}",
+              "short": true
+            },
+            {
+              "title": "건강 상태",
+              "value": "{{.app.status.health.status}}",
+              "short": true
+            },
+            {
+              "title": "네임스페이스",
+              "value": "{{.app.spec.destination.namespace}}",
+              "short": true
+            },
+            {
+              "title": "오류 메시지",
+              "value": "{{.app.status.operationState.message}}",
+              "short": false
+            }
+            ]
+          }]
+    
+    template.app-sync-status-out-of-sync: |
+      message: |
+        :warning: 애플리케이션 {{.app.metadata.name}}이(가) OutOfSync 상태입니다.
+      slack:
+        attachments: |
+          [{
+            "title": "{{ .app.metadata.name}} - OutOfSync",
+            "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+            "color": "#f4c030",
+            "fields": [
+            {
+              "title": "동기화 상태",
+              "value": "{{.app.status.sync.status}}",
+              "short": true
+            },
+            {
+              "title": "건강 상태",
+              "value": "{{.app.status.health.status}}",
+              "short": true
+            },
+            {
+              "title": "네임스페이스",
+              "value": "{{.app.spec.destination.namespace}}",
+              "short": true
+            },
+            {
+              "title": "리비전",
+              "value": "{{.app.status.sync.revision}}",
+              "short": true
+            }
+            ]
+          }]
+    
+    template.app-health-missing: |
+      message: |
+        :question: 애플리케이션 {{.app.metadata.name}}의 건강 상태 정보가 없습니다.
+      slack:
+        attachments: |
+          [{
+            "title": "{{ .app.metadata.name}} - 건강 상태 정보 없음",
+            "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+            "color": "#808080",
+            "fields": [
+            {
+              "title": "동기화 상태",
+              "value": "{{.app.status.sync.status}}",
+              "short": true
+            },
+            {
+              "title": "네임스페이스",
+              "value": "{{.app.spec.destination.namespace}}",
+              "short": true
+            }
+            ]
+          }]
+    
+    # template.app-healthy: |
+    #   message: |
+    #     :white_check_mark: 애플리케이션 {{.app.metadata.name}}이(가) 정상 상태입니다.
+    #   slack:
+    #     attachments: |
+    #       [{
+    #         "title": "{{ .app.metadata.name}} - 정상 상태",
+    #         "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+    #         "color": "#18be52",
+    #         "fields": [
+    #         {
+    #           "title": "동기화 상태",
+    #           "value": "{{.app.status.sync.status}}",
+    #           "short": true
+    #         },
+    #         {
+    #           "title": "건강 상태",
+    #           "value": "{{.app.status.health.status}}",
+    #           "short": true
+    #         },
+    #         {
+    #           "title": "네임스페이스",
+    #           "value": "{{.app.spec.destination.namespace}}",
+    #           "short": true
+    #         },
+    #         {
+    #           "title": "리비전",
+    #           "value": "{{.app.status.sync.revision}}",
+    #           "short": true
+    #         }
+    #         ]
+    #       }]
+  
+  triggers:
+    trigger.on-deployed: |
+      - description: Application is synced and healthy. Triggered once per commit.
+        oncePer: app.status.sync.revision
+        send:
+        - app-deployed
+        when: app.status.operationState.phase in ['Succeeded'] and app.status.health.status == 'Healthy'
+    trigger.on-health-degraded: |
+      - description: Application has degraded
+        send:
+        - app-health-degraded
+        when: app.status.health.status == 'Degraded'
+    trigger.on-sync-failed: |
+      - description: Application syncing has failed
+        send:
+        - app-sync-failed
+        when: app.status.operationState.phase in ['Error', 'Failed']
+    trigger.on-sync-status-out-of-sync: |
+      - description: Application sync status is 'OutOfSync'
+        send:
+        - app-sync-status-out-of-sync
+        when: app.status.sync.status == 'OutOfSync'
+    trigger.on-health-missing: |
+      - description: Application health status is missing
+        send:
+        - app-health-missing
+        when: app.status.health.status == 'Missing'
+    # trigger.test-notification: |
+    #   - description: 테스트 알림 - 애플리케이션이 정상 상태일 때
+    #     send:
+    #     - app-healthy
+    #     when: "true"  # 항상 트리거됨
+  
+  subscriptions:
+    - recipients:
+      - slack:your-channel-name
+      triggers:
+      - on-deployed
+      - on-health-degraded
+      - on-sync-failed
+      - on-sync-status-out-of-sync
+      - on-health-missing
+      # - test-notification
