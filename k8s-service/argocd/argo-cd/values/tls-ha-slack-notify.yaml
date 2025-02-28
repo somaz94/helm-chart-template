@@ -155,7 +155,7 @@ notifications:
               "short": true
             },
             {
-              "title": "건강 상태",
+              "title": "앱 상태",
               "value": "{{.app.status.health.status}}",
               "short": true
             },
@@ -179,7 +179,7 @@ notifications:
         attachments: |
           [{
             "title": "{{ .app.metadata.name}} - 상태 저하",
-            "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+            "title_link":"{{.context.argocdUrl}}/applications/{{.app.meta앱ata.name}}",
             "color": "#E96D76",
             "fields": [
             {
@@ -188,7 +188,7 @@ notifications:
               "short": true
             },
             {
-              "title": "건강 상태",
+              "title": "앱 상태",
               "value": "{{.app.status.health.status}}",
               "short": true
             },
@@ -223,7 +223,7 @@ notifications:
               "short": true
             },
             {
-              "title": "건강 상태",
+              "title": "앱 상태",
               "value": "{{.app.status.health.status}}",
               "short": true
             },
@@ -256,7 +256,7 @@ notifications:
               "short": true
             },
             {
-              "title": "건강 상태",
+              "title": "앱 상태",
               "value": "{{.app.status.health.status}}",
               "short": true
             },
@@ -275,11 +275,11 @@ notifications:
     
     template.app-health-missing: |
       message: |
-        :question: 애플리케이션 {{.app.metadata.name}}의 건강 상태 정보가 없습니다.
+        :question: 애플리케이션 {{.app.metadata.name}}의 상태 정보가 없습니다.
       slack:
         attachments: |
           [{
-            "title": "{{ .app.metadata.name}} - 건강 상태 정보 없음",
+            "title": "{{ .app.metadata.name}} - 앱 상태 정보 없음",
             "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
             "color": "#808080",
             "fields": [
@@ -295,7 +295,40 @@ notifications:
             }
             ]
           }]
-    
+
+    template.app-restarted: |
+      message: |
+        :arrows_counterclockwise: 애플리케이션 {{.app.metadata.name}}이(가) 재시작되었습니다.
+      slack:
+        attachments: |
+          [{
+            "title": "{{ .app.metadata.name}} - 재시작됨",
+            "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+            "color": "#3D85C6",
+            "fields": [
+            {
+              "title": "동기화 상태",
+              "value": "{{.app.status.sync.status}}",
+              "short": true
+            },
+            {
+              "title": "앱 상태",
+              "value": "{{.app.status.health.status}}",
+              "short": true
+            },
+            {
+              "title": "네임스페이스",
+              "value": "{{.app.spec.destination.namespace}}",
+              "short": true
+            },
+            {
+              "title": "리비전",
+              "value": "{{.app.status.sync.revision}}",
+              "short": true
+            }
+            ]
+          }]
+
     # template.app-healthy: |
     #   message: |
     #     :white_check_mark: 애플리케이션 {{.app.metadata.name}}이(가) 정상 상태입니다.
@@ -312,7 +345,7 @@ notifications:
     #           "short": true
     #         },
     #         {
-    #           "title": "건강 상태",
+    #           "title": "앱 상태",
     #           "value": "{{.app.status.health.status}}",
     #           "short": true
     #         },
@@ -356,6 +389,11 @@ notifications:
         send:
         - app-health-missing
         when: app.status.health.status == 'Missing'
+    trigger.on-restarted: |
+      - description: Application has been restarted
+        send:
+        - app-restarted
+        when: app.status.operationState != nil and app.status.health.status == 'Progressing'
     # trigger.test-notification: |
     #   - description: 테스트 알림 - 애플리케이션이 정상 상태일 때
     #     send:
@@ -371,4 +409,5 @@ notifications:
       - on-sync-failed
       - on-sync-status-out-of-sync
       - on-health-missing
+      - on-restarted
       # - test-notification
