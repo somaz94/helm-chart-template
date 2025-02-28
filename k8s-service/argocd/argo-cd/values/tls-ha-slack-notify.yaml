@@ -121,7 +121,6 @@ repoServer:
 ## ApplicationSet controller
 applicationSet:
   replicas: 2
-## Notifications controller
 notifications:
   # -- Enable notifications controller
   enabled: true
@@ -136,7 +135,7 @@ notifications:
       token: $slack-token
       username: ArgoCD
       icon: https://argo-cd.readthedocs.io/en/stable/assets/logo.png
-      channel: "#your-channel-name"
+      channel: "#argocd-alarm" # TODO: change to <your-channel-name>
   
   templates:
     template.app-deployed: |
@@ -393,7 +392,7 @@ notifications:
       - description: Application has been restarted
         send:
         - app-restarted
-        when: app.status.operationState != nil and app.status.health.status == 'Progressing'
+        when: app.status.health.status == 'Progressing'
     # trigger.test-notification: |
     #   - description: 테스트 알림 - 애플리케이션이 정상 상태일 때
     #     send:
@@ -402,7 +401,7 @@ notifications:
   
   subscriptions:
     - recipients:
-      - slack:your-channel-name
+      - slack:#argocd-alarm # TODO: change to <your-channel-name>
       triggers:
       - on-deployed
       - on-health-degraded
