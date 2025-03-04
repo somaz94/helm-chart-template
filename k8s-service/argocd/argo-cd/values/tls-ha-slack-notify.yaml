@@ -159,13 +159,13 @@ notifications:
               "short": true
             },
             {
-              "title": "리비전",
-              "value": "{{.app.status.sync.revision}}",
+              "title": "네임스페이스",
+              "value": "{{.app.spec.destination.namespace}}",
               "short": true
             },
             {
-              "title": "네임스페이스",
-              "value": "{{.app.spec.destination.namespace}}",
+              "title": "리비전",
+              "value": "{{.app.status.sync.revision}}",
               "short": true
             }
             ]
@@ -363,11 +363,13 @@ notifications:
   
   triggers:
     trigger.on-deployed: |
-      - description: Application is synced and healthy. Triggered once per commit.
-        oncePer: app.status.sync.revision
+      - description: Application is synced and healthy after any operation.
         send:
         - app-deployed
-        when: app.status.operationState.phase in ['Succeeded'] and app.status.health.status == 'Healthy'
+        when: |
+          app.status.operationState.phase == 'Succeeded' and 
+          app.status.health.status == 'Healthy' and 
+          app.status.operationState != null
     trigger.on-health-degraded: |
       - description: Application has degraded
         send:
