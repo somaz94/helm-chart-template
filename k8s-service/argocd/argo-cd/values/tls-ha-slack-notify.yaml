@@ -402,6 +402,7 @@ notifications:
     #     when: "true"  # 항상 트리거됨
   
   subscriptions:
+    # prod- 로 시작하는 애플리케이션에 대한 알림
     - recipients:
       - slack:#argocd-alarm # TODO: change to <your-channel-name>
       triggers:
@@ -412,3 +413,4 @@ notifications:
       - on-health-missing
       - on-restarted
       # - test-notification
+      selector: app.metadata.name matches '^prod-.*'
