@@ -22,6 +22,10 @@ spec:
   template:
     metadata:
       name: '{{values.environment}}-{{values.project}}-{{path.basename}}'
+      labels:
+        environment: '{{values.environment}}'
+        project: '{{values.project}}'
+        app-name: '{{path.basename}}'
     spec:
       project: '{{cluster}}'
       source:
