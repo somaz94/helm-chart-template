@@ -450,25 +450,25 @@ notifications:
         send:
         - app-health-degraded
         when: app.status.health.status == 'Degraded'
-        delay: 10s
     trigger.on-sync-failed: |
       - description: Application syncing has failed
         send:
         - app-sync-failed
         when: app.status.operationState.phase in ['Error', 'Failed']
-        delay: 10s
     trigger.on-sync-status-out-of-sync: |
       - description: Application sync status is 'OutOfSync'
         send:
         - app-sync-status-out-of-sync
-        when: app.status.sync.status == 'OutOfSync'
-        delay: 10s
+        when: |
+          app.status.sync.status == 'OutOfSync' and 
+          app.status.health.status != 'Progressing' and 
+          (app.status.operationState == null or app.status.operationState.phase != 'Running') and
+          time.Now().Sub(time.Parse(app.status.operationState.finishedAt)).Seconds() > 60
     trigger.on-health-missing: |
       - description: Application health status is missing
         send:
         - app-health-missing
         when: app.status.health.status == 'Missing'
-        delay: 10s
     trigger.on-restarted: |
       - description: Application has been restarted
         send:
