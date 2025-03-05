@@ -461,7 +461,9 @@ notifications:
         - app-sync-status-out-of-sync
         when: |
           app.status.sync.status == 'OutOfSync' and 
-          app.status.health.status != 'Progressing' and 
+          app.status.health.status not in ['Progressing', 'Healthy'] and 
+          (app.metadata.creationTimestamp == null or 
+            time.Now().Sub(time.Parse(app.metadata.creationTimestamp)).Minutes() > 5) and
           ((app.status.operationState == null) or 
           (app.status.operationState != null and 
             app.status.operationState.phase != 'Running' and 
