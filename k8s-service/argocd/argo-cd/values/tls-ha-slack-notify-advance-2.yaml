@@ -137,6 +137,7 @@ notifications:
       icon: https://argo-cd.readthedocs.io/en/stable/assets/logo.png
       channel: "#argocd-alarm" # TODO: change to <your-channel-name>
   
+  
   templates:
     template.app-deployed: |
       message: |
@@ -446,16 +447,19 @@ notifications:
           app.status.operationState.phase == 'Succeeded' and 
           app.status.health.status == 'Healthy' and 
           app.status.operationState != null
+
     trigger.on-health-degraded: |
       - description: Application has degraded
         send:
         - app-health-degraded
         when: app.status.health.status == 'Degraded'
+
     trigger.on-sync-failed: |
       - description: Application syncing has failed
         send:
         - app-sync-failed
         when: app.status.operationState.phase in ['Error', 'Failed']
+
     trigger.on-sync-status-out-of-sync: |
       - description: Application sync status is 'OutOfSync'
         send:
@@ -470,22 +474,25 @@ notifications:
             app.status.operationState.phase != 'Running' and 
             app.status.operationState.finishedAt != null and
             time.Now().Sub(time.Parse(app.status.operationState.finishedAt)).Seconds() > 60))
+
     trigger.on-health-missing: |
       - description: Application health status is missing
         send:
         - app-health-missing
         when: app.status.health.status == 'Missing'
+        
     trigger.on-restarted: |
       - description: Application has been restarted
         send:
         - app-restarted
         when: app.status.health.status == 'Progressing'
+        
     # trigger.test-notification: |
     #   - description: 테스트 알림 - 애플리케이션이 정상 상태일 때
     #     send:
     #     - app-healthy
     #     when: "true"  # 항상 트리거됨
-  
+    
   subscriptions:
     # prod- 로 시작하는 애플리케이션에 대한 알림
     - recipients:
