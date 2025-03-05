@@ -462,8 +462,11 @@ notifications:
         when: |
           app.status.sync.status == 'OutOfSync' and 
           app.status.health.status != 'Progressing' and 
-          (app.status.operationState == null or app.status.operationState.phase != 'Running') and
-          time.Now().Sub(time.Parse(app.status.operationState.finishedAt)).Seconds() > 60
+          ((app.status.operationState == null) or 
+          (app.status.operationState != null and 
+            app.status.operationState.phase != 'Running' and 
+            app.status.operationState.finishedAt != null and
+            time.Now().Sub(time.Parse(app.status.operationState.finishedAt)).Seconds() > 60))
     trigger.on-health-missing: |
       - description: Application health status is missing
         send:
