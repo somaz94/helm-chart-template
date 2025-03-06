@@ -489,7 +489,7 @@ notifications:
           app.status.operationState.phase == 'Succeeded' and 
           app.status.health.status == 'Healthy' and 
           app.status.operationState != null
-        oncePer: app.metadata.annotations['image-tag']
+        oncePer: app.status.summary.images[0]
 
     trigger.on-health-degraded: |
       - description: Application has degraded
