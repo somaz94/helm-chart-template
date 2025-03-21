@@ -1,0 +1,44 @@
+# yaml-language-server: $schema=values.schema.json
+
+nginxGateway:
+  kind: deployment
+  gatewayClassName: nginx-gateway
+  gatewayControllerName: gateway.nginx.org/nginx-gateway-controller
+  replicaCount: 1
+
+  # The configuration for leader election.
+  leaderElection:
+    enable: true
+  image:
+    # -- The NGINX Gateway Fabric image to use
+    repository: ghcr.io/nginx/nginx-gateway-fabric
+    tag: 1.6.2
+    pullPolicy: IfNotPresent
+    
+  snippetsFilters:
+    enable: true
+
+nginx:
+  image:
+    # -- The NGINX image to use.
+    repository: ghcr.io/nginx/nginx-gateway-fabric/nginx
+    tag: 1.6.2
+    pullPolicy: IfNotPresent
+
+service:
+  create: true
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  loadBalancerIP: "10.10.10.62"
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+    - port: 443
+      targetPort: 443
+      protocol: TCP
+      name: https
+
+metrics:
+  enable: true

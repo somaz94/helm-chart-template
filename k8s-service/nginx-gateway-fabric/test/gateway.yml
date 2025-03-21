@@ -1,0 +1,25 @@
+# gateway.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: nginx-gateway
+spec:
+  controllerName: gateway.nginx.org/nginx-gateway-controller
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: game-gateway
+  namespace: default
+spec:
+  gatewayClassName: nginx-gateway
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              allow-gateway: "true"
