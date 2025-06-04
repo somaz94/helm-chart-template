@@ -17,21 +17,21 @@ releases:
     values:
       - values/ingress-nginx-values-public.yaml
 
-  - name: ingress-nginx-public-b
+  - name: ingress-nginx-tls
     namespace: ingress-nginx
     chart: .
     version: 4.10.0
     values:
       - values/ingress-nginx-values-tls.yaml
 
-  - name: ingress-nginx-public-c
+  - name: ingress-nginx-sidecar
     namespace: ingress-nginx
     chart: .
     version: 4.10.0
     values:
       - values/ingress-nginx-values-sidecar.yaml
 
-  - name: ingress-nginx-public-d
+  - name: ingress-nginx-sidecar-tls
     namespace: ingress-nginx
     chart: .
     version: 4.10.0
