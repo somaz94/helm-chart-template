@@ -1,0 +1,48 @@
+repositories:
+  - name: ingress-nginx
+    url: https://kubernetes.github.io/ingress-nginx
+
+releases:
+  - name: ingress-nginx
+    namespace: ingress-nginx
+    chart: . # Use external directory (ingress-nginx/ingress-nginx)
+    version: 4.10.0 # Chart.yaml version reference
+    values:
+      - values/ingress-nginx-values.yaml
+
+  - name: ingress-nginx-public
+    namespace: ingress-nginx
+    chart: .
+    version: 4.10.0
+    values:
+      - values/ingress-nginx-values-public.yaml
+
+  - name: ingress-nginx-public-b
+    namespace: ingress-nginx
+    chart: .
+    version: 4.10.0
+    values:
+      - values/ingress-nginx-values-tls.yaml
+
+  - name: ingress-nginx-public-c
+    namespace: ingress-nginx
+    chart: .
+    version: 4.10.0
+    values:
+      - values/ingress-nginx-values-sidecar.yaml
+
+  - name: ingress-nginx-public-d
+    namespace: ingress-nginx
+    chart: .
+    version: 4.10.0
+    values:
+      - values/ingress-nginx-values-sidecar-tls.yaml
+
+  # # Test deployment
+  # - name: ingress-nginx-test
+  #   namespace: ingress-nginx
+  #   chart: .
+  #   version: 4.12.0-beta.0
+  #   values:
+  #     - values/mgmt.yaml  # Reuse default settings
+  #     # - values/mgmt-public-test.yaml  # Create new settings file
