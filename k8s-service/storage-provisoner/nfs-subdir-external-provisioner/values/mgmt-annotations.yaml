@@ -11,19 +11,19 @@ nfs:
   server: <nfs_server ip>
   path: <nfs path>
   mountOptions: 
-  volumeName: nfs-subdir-external-provisioner-root-sts
+  volumeName: nfs-subdir-external-provisioner-root-ano
   reclaimPolicy: Retain
 
 storageClass:
   create: true
-  provisionerName: nfs-provisioner
+  provisionerName: nfs-provisioner-ano
   defaultClass: false
-  name: nfs-client-sts
+  name: nfs-client-ano
   allowVolumeExpansion: true
   reclaimPolicy: Delete
   archiveOnDelete: false
-  pathPattern: ${.PVC.namespace}/${.PVC.name}
-  # pathPattern: ${.PVC.namespace}/${.PVC.annotations.nfs.io/storage-path}
+  # pathPattern: ${.PVC.namespace}/${.PVC.name}
+  pathPattern: ${.PVC.namespace}/${.PVC.annotations.nfs.io/storage-path}
   accessModes: ReadWriteOnce
   volumeBindingMode: WaitForFirstConsumer
   annotations: {}

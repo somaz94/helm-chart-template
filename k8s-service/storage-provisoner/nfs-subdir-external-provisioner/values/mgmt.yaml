@@ -22,8 +22,8 @@ storageClass:
   allowVolumeExpansion: true
   reclaimPolicy: Delete
   archiveOnDelete: false
-  # pathPattern: ${.PVC.namespace}/${.PVC.name}
-  pathPattern: ${.PVC.namespace}/${.PVC.annotations.nfs.io/storage-path}
+  pathPattern: ${.PVC.namespace}/${.PVC.name}
+  # pathPattern: ${.PVC.namespace}/${.PVC.annotations.nfs.io/storage-path}
   accessModes: ReadWriteOnce
   volumeBindingMode: WaitForFirstConsumer
   annotations: {}

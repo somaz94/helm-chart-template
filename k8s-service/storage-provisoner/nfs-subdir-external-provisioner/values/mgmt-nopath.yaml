@@ -16,7 +16,7 @@ nfs:
 
 storageClass:
   create: true
-  provisionerName: nfs-provisioner
+  provisionerName: nfs-provisioner-nopath
   defaultClass: false
   name: nfs-client-nopath
   allowVolumeExpansion: true
