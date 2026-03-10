@@ -1,44 +1,38 @@
-# Helm Chart Templates with ArgoCD 🚀
+# Helm Chart Templates with ArgoCD
 
 This repository contains Helm chart templates specifically designed to work seamlessly with ArgoCD across various platforms: AWS, GCP, and on-premises infrastructure.
 
-<br/>
+## AWS
 
-## 📁 AWS
+- **eks-fargate-use-ebs**: Template for EKS Fargate with EBS storage
+- **eks-fargate-use-efs**: Template for EKS Fargate with EFS file storage
+- **external-secrets**: Chart for managing external secrets (deprecated, see [External Secrets Operator](https://external-secrets.io/))
+- **external-dns**: ExternalDNS chart for AWS Route53 (helmfile)
+- **gitlab-runner-aws**: GitLab Runner chart for AWS (helmfile)
 
-- 📂 eks-fargate-use-ebs: A template for storage using EBS.
-- 📂 eks-fargate-use-efs: A template for file storage using EFS.
-- 📂 external-secrets: Chart for managing AWS external secrets.
+## GCP
 
-<br/>
+- **gke-use-firestore**: Template for GKE with Firestore
+- **gke-use-firestore-shared-vpc**: Template for GKE with Firestore on shared VPC
+- **gke-use-nfs-server**: Template for GKE with NFS server
+- **gke-use-pd-csi**: Template for GKE with PD CSI driver
+- **external-dns**: ExternalDNS chart for GCP Cloud DNS (helmfile)
+- **haproxy**: HAProxy chart for GCP
 
-## 📁 GCP
+## k8s-service
 
-- 📂 gke-use-firestore: Template for using Firestore on GKE.
-- 📂 gke-use-firestore-shared-vpc: Template for using Firestore on GKE with a shared VPC.
-- 📂 gke-use-nfs-server: Template for NFS server usage on GKE.
-- 📂 gke-use-pd-csi: Template for persistent disk CSI on GKE.
-- 📂 external-secrets: Chart for managing GCP external secrets.
+- **argocd**: Helm chart and YAML files for ArgoCD
+- **harbor**: Helm chart for Harbor
+- **monitoring**: Helm charts for monitoring (Prometheus, Grafana, Loki, Thanos, ELK Stack, etc.)
+- **storage-provisioner**: Helm charts for storage provisioners (Local Path, NFS)
+- **ingress-nginx**: Helm chart for ingress-nginx
+- **metallb**: YAML files for MetalLB
+- **nginx-gateway-fabric**: Nginx Gateway Fabric chart
 
-<br/>
+## Onpremise
 
-## 📁 k8s-service
-
-- 📁 argocd: Helm chart and YAML files for ArgoCD.
-- 📁 harbor: Helm chart for Harbor.
-- 📁 monitoring: Helm chart for monitoring(Prometheus, Grafana, Loki, Thanos, etc.)
-- 📁 storage-provisioner: Helm chart for storage provisioner(Local, NFS))
-- 📁 ingress-nginx: Helm chart for ingress-nginx.
-- 📁 metallb: YAML files for metallb.
-
-<br/>
-
-## 📁 Onpremise
-
-- 📂 ke-use-nfs-server: Template for NFS server usage on a Kubernetes cluster deployed on-premise.
-- 📂 ke-use-nfs-server-sidecar-fluentbit: Template for NFS server usage on a Kubernetes cluster deployed on-premise with FluentBit sidecar.
-
-<br/>
+- **ke-use-nfs-server**: Template for NFS server usage on an on-premise Kubernetes cluster
+- **ke-use-nfs-server-sidecar-fluentbit**: Template for NFS server usage on an on-premise Kubernetes cluster with FluentBit sidecar
 
 ## License
 

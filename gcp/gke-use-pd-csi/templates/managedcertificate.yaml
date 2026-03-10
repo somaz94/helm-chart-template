@@ -1,7 +1,7 @@
 apiVersion: networking.gke.io/v1
 kind: ManagedCertificate
 metadata:
-  name: {{ include "somaz.fullname" . }}
+  name: {{ include "gke-use-pd-csi.fullname" . }}
 spec:
   domains:
     - {{ .Values.managedCertificate.domain }}

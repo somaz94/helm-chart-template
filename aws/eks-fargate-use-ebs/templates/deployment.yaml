@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "somaz.fullname" . }}
+  name: {{ include "eks-fargate-use-ebs.fullname" . }}
   labels:
-    {{- include "somaz.labels" . | nindent 4 }}
+    {{- include "eks-fargate-use-ebs.labels" . | nindent 4 }}
 spec:
   revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
   {{- if not .Values.autoscaling.enabled }}
@@ -11,7 +11,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "somaz.selectorLabels" . | nindent 6 }}
+      {{- include "eks-fargate-use-ebs.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -19,13 +19,13 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "somaz.selectorLabels" . | nindent 8 }}
+        {{- include "eks-fargate-use-ebs.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "somaz.serviceAccountName" . }}
+      serviceAccountName: {{ include "eks-fargate-use-ebs.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -38,16 +38,14 @@ spec:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
-          #livenessProbe:
-          #  httpGet:
-          #    path: /
-          #    port: http
+          {{- if .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe }}
           readinessProbe:
-            httpGet:
-              path: /health
-              port: 3000
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
@@ -110,9 +108,9 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "staging-{{ include "somaz.fullname" . }}"
+  name: "staging-{{ include "eks-fargate-use-ebs.fullname" . }}"
   labels:
-    {{- include "staging-somaz.labels" . | nindent 4 }}
+    {{- include "staging-eks-fargate-use-ebs.labels" . | nindent 4 }}
   namespace: "staging-{{ .Values.namespace }}"
 spec:
   revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
@@ -121,7 +119,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "staging-somaz.selectorLabels" . | nindent 6 }}
+      {{- include "staging-eks-fargate-use-ebs.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -129,13 +127,13 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "staging-somaz.selectorLabels" . | nindent 8 }}
+        {{- include "staging-eks-fargate-use-ebs.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "somaz.serviceAccountName" . }}
+      serviceAccountName: {{ include "eks-fargate-use-ebs.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -148,14 +146,6 @@ spec:
             - name: http
               containerPort: 8080
               protocol: TCP
-          #livenessProbe:
-          #  httpGet:
-          #    path: /
-          #    port: 8080
-          #readinessProbe:
-          #  httpGet:
-          #    path: /
-          #    port: 8080
           resources:
             {{- toYaml .Values.stagingResources | nindent 12 }}
           env:
@@ -167,9 +157,7 @@ spec:
           {{- range $config := .Values.configs }}
           - configMapRef:
               name: {{ $config.name }}
-              #{- range $key, $value := $config.data }}
-              #  { $key }}: { $value }}
-              #{- end }}
+
           {{- end}}
           {{- range $externalSecret := .Values.externalSecrets }}
           - secretRef:

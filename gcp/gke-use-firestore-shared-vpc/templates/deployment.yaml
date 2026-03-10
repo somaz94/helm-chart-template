@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "somaz.fullname" . }}
+  name: {{ include "gke-use-firestore-shared-vpc.fullname" . }}
   labels:
-    {{- include "somaz.labels" . | nindent 4 }}
+    {{- include "gke-use-firestore-shared-vpc.labels" . | nindent 4 }}
 spec:
   revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
   {{- if not .Values.autoscaling.enabled }}
@@ -11,7 +11,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "somaz.selectorLabels" . | nindent 6 }}
+      {{- include "gke-use-firestore-shared-vpc.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -19,13 +19,13 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "somaz.selectorLabels" . | nindent 8 }}
+        {{- include "gke-use-firestore-shared-vpc.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "somaz.serviceAccountName" . }}
+      serviceAccountName: {{ include "gke-use-firestore-shared-vpc.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:

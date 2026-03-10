@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "somaz.name" -}}
+{{- define "eks-fargate-use-efs.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "somaz.fullname" -}}
+{{- define "eks-fargate-use-efs.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "somaz.chart" -}}
+{{- define "eks-fargate-use-efs.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "somaz.labels" -}}
-helm.sh/chart: {{ include "somaz.chart" . }}
-{{ include "somaz.selectorLabels" . }}
+{{- define "eks-fargate-use-efs.labels" -}}
+helm.sh/chart: {{ include "eks-fargate-use-efs.chart" . }}
+{{ include "eks-fargate-use-efs.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,17 +45,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "somaz.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "somaz.name" . }}
+{{- define "eks-fargate-use-efs.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "eks-fargate-use-efs.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "somaz.serviceAccountName" -}}
+{{- define "eks-fargate-use-efs.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "somaz.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "eks-fargate-use-efs.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
@@ -64,9 +64,9 @@ Create the name of the service account to use
 {{/*
 Staging Common labels
 */}}
-{{- define "staging-somaz.labels" -}}
-helm.sh/chart: {{ include "somaz.chart" . }}
-{{ include "staging-somaz.selectorLabels" . }}
+{{- define "staging-eks-fargate-use-efs.labels" -}}
+helm.sh/chart: {{ include "eks-fargate-use-efs.chart" . }}
+{{ include "staging-eks-fargate-use-efs.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -76,7 +76,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Staging Selector labels
 */}}
-{{- define "staging-somaz.selectorLabels" -}}
-app.kubernetes.io/name: "staging-{{ include "somaz.name" . }}"
+{{- define "staging-eks-fargate-use-efs.selectorLabels" -}}
+app.kubernetes.io/name: "staging-{{ include "eks-fargate-use-efs.name" . }}"
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}

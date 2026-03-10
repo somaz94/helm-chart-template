@@ -1,7 +1,7 @@
 apiVersion: networking.gke.io/v1beta1
 kind: FrontendConfig
 metadata:
-  name: {{ include "somaz.fullname" . }}
+  name: {{ include "gke-use-pd-csi.fullname" . }}
 spec:
   redirectToHttps:
     enabled: {{ .Values.frontendConfig.redirectToHttpsEnabled }}

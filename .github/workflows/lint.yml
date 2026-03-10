@@ -1,0 +1,47 @@
+name: Helm Lint
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Lint AWS Charts
+        run: |
+          for chart in aws/eks-fargate-use-ebs aws/eks-fargate-use-efs aws/external-secrets; do
+            echo "=== Linting $chart ==="
+            helm lint "$chart" || true
+          done
+
+      - name: Lint GCP Charts
+        run: |
+          for chart in gcp/gke-use-firestore gcp/gke-use-firestore-shared-vpc gcp/gke-use-nfs-server gcp/gke-use-pd-csi; do
+            echo "=== Linting $chart ==="
+            helm lint "$chart" || true
+          done
+
+      - name: Lint Onpremise Charts
+        run: |
+          for chart in onpremise/ke-use-nfs-server onpremise/ke-use-nfs-server-sidecar-fluentbit; do
+            echo "=== Linting $chart ==="
+            helm lint "$chart" || true
+          done
+
+      - name: Lint k8s-service Charts
+        run: |
+          for chart in k8s-service/ingress-nginx k8s-service/storage-provisioner/local-path-provisioner; do
+            echo "=== Linting $chart ==="
+            helm lint "$chart" || true
+          done

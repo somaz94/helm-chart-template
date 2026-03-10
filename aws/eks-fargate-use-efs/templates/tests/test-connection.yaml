@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: "{{ include "somaz.fullname" . }}-test-connection"
+  name: "{{ include "eks-fargate-use-efs.fullname" . }}-test-connection"
   labels:
-    {{- include "somaz.labels" . | nindent 4 }}
+    {{- include "eks-fargate-use-efs.labels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": test
 spec:
@@ -11,5 +11,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "somaz.fullname" . }}:{{ .Values.service.port }}']
+      args: ['{{ include "eks-fargate-use-efs.fullname" . }}:{{ .Values.service.port }}']
   restartPolicy: Never

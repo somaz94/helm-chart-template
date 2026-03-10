@@ -2,14 +2,14 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "somaz.fullname" . }}
+  name: {{ include "gke-use-pd-csi.fullname" . }}
   labels:
-    {{- include "somaz.labels" . | nindent 4 }}
+    {{- include "gke-use-pd-csi.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "somaz.fullname" . }}
+    name: {{ include "gke-use-pd-csi.fullname" . }}
   minReplicas: {{ .Values.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.autoscaling.maxReplicas }}
   metrics:
