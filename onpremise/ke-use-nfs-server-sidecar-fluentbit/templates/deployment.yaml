@@ -48,14 +48,14 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            - name: NODE_ENV
-              value: {{ .Values.envConfig.NODE_ENV }}
-            - name: ENVIRONMENT
-              value: {{ .Values.envConfig.ENVIRONMENT }}
+          {{- range $key, $value := .Values.envConfig }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+          {{- end }}
           envFrom:
           {{- range $config := .Values.configs }}
-            - configMapRef:
-                name: {{ $config.name }}
+          - configMapRef:
+              name: {{ $config.name }}
           {{- end}}
           ports:
             {{- range .Values.service.ports }}
@@ -65,6 +65,20 @@ spec:
               protocol: TCP
             {{- end }}
             {{- end }}
+          {{- if .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.startupProbe }}
+          startupProbe:
+            {{- toYaml .Values.startupProbe | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             {{- range $persistentVolumeClaim := .Values.persistentVolumeClaims }}
             - name: {{ $persistentVolumeClaim.type }}
@@ -81,16 +95,6 @@ spec:
         {{- if .Values.sidecars.enabled }}
         {{- toYaml .Values.sidecars.containers | nindent 8 }}
         {{- end }}
-          # livenessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
-          # readinessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -103,4 +107,3 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-

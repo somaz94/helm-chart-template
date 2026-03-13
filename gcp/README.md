@@ -1,4 +1,3 @@
-
 # GCP Helm Chart Templates
 
 Helm chart templates for GKE and related GCP services, designed for use with ArgoCD.

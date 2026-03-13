@@ -1,5 +1,5 @@
 # apiversion
-apiVersion: metallb.io/v1beta1 
+apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
 metadata:
   name: ip-pool
@@ -7,12 +7,12 @@ metadata:
 spec:
   addresses:
   # Using ip address pool
-  - 111.111.111.111 - 111.111.111.111 
+  - 111.111.111.111 - 111.111.111.111
   autoAssign: true
---- 
-apiVersion: metallb.io/v1beta1 
+---
+apiVersion: metallb.io/v1beta1
 # Use l2 mode
-kind: L2Advertisement 
+kind: L2Advertisement
 metadata:
   name: l2-network
   namespace: metallb-system

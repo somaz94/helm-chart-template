@@ -2,6 +2,8 @@
 
 This repository contains Helm chart templates specifically designed to work seamlessly with ArgoCD across various platforms: AWS, GCP, and on-premises infrastructure.
 
+<br/>
+
 ## AWS
 
 - **eks-fargate-use-ebs**: Template for EKS Fargate with EBS storage
@@ -9,6 +11,8 @@ This repository contains Helm chart templates specifically designed to work seam
 - **external-secrets**: Chart for managing external secrets (deprecated, see [External Secrets Operator](https://external-secrets.io/))
 - **external-dns**: ExternalDNS chart for AWS Route53 (helmfile)
 - **gitlab-runner-aws**: GitLab Runner chart for AWS (helmfile)
+
+<br/>
 
 ## GCP
 
@@ -18,6 +22,8 @@ This repository contains Helm chart templates specifically designed to work seam
 - **gke-use-pd-csi**: Template for GKE with PD CSI driver
 - **external-dns**: ExternalDNS chart for GCP Cloud DNS (helmfile)
 - **haproxy**: HAProxy chart for GCP
+
+<br/>
 
 ## k8s-service
 
@@ -29,10 +35,14 @@ This repository contains Helm chart templates specifically designed to work seam
 - **metallb**: YAML files for MetalLB
 - **nginx-gateway-fabric**: Nginx Gateway Fabric chart
 
+<br/>
+
 ## Onpremise
 
 - **ke-use-nfs-server**: Template for NFS server usage on an on-premise Kubernetes cluster
 - **ke-use-nfs-server-sidecar-fluentbit**: Template for NFS server usage on an on-premise Kubernetes cluster with FluentBit sidecar
+
+<br/>
 
 ## License
 

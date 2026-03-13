@@ -46,6 +46,10 @@ spec:
           readinessProbe:
             {{- toYaml .Values.readinessProbe | nindent 12 }}
           {{- end }}
+          {{- if .Values.startupProbe }}
+          startupProbe:
+            {{- toYaml .Values.startupProbe | nindent 12 }}
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
@@ -94,6 +98,10 @@ spec:
         {{- end }}
       {{- with .Values.volumes }}
       {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.affinity }}
       affinity:
@@ -144,20 +152,27 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 8080
+              containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
+          {{- if .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          {{- end }}
           resources:
-            {{- toYaml .Values.stagingResources | nindent 12 }}
+            {{- toYaml (.Values.stagingResources | default .Values.resources) | nindent 12 }}
           env:
-            - name: NODE_ENV
-              value: {{ .Values.stagingEnvConfig.NODE_ENV }}
-            - name: ENVIRONMENT
-              value: {{ .Values.stagingEnvConfig.ENVIRONMENT }}
+          {{- range $key, $value := .Values.stagingEnvConfig }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+          {{- end }}
           envFrom:
           {{- range $config := .Values.configs }}
           - configMapRef:
               name: {{ $config.name }}
-
           {{- end}}
           {{- range $externalSecret := .Values.externalSecrets }}
           - secretRef:

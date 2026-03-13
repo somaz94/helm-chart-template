@@ -21,9 +21,7 @@ repositories:
 releases:
   - name: nfs-provisioner
     namespace: nfs-provisioner
-    createNamespace: true   
-    # chart: ./ # Use local chart directory 
-    # Use the Remote chart repository nfs-subdir-external-provisioner/nfs-subdir-external-provisioner
+    createNamespace: true
     chart: nfs-subdir-external-provisioner/nfs-subdir-external-provisioner
     version: 4.0.18
     values:
@@ -51,13 +49,6 @@ releases:
     labels:
       environment: mgmt-annotations
 
-# helmDefaults:
-#   wait: true
-#   timeout: 300
-#   atomic: true
-#   cleanupOnFail: true
-
-# Hooks to ensure proper installation and upgrades
 hooks:
   - events: ["presync"]
     showlogs: true
@@ -70,5 +61,4 @@ hooks:
       - "-o"
       - "yaml"
       - "||"
-      - "true" 
-
+      - "true"

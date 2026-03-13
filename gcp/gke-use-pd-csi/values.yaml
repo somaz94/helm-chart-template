@@ -1,4 +1,4 @@
-# Default values for somaz.
+# Default values for gke-use-pd-csi.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -39,6 +39,7 @@ securityContext: {}
 service:
   type: ClusterIP
   port: 80
+  targetPort: 80
 
 ingress:
   enabled: false
@@ -80,3 +81,20 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+revisionHistoryLimit: 3
+
+envConfig: {}
+
+configs: []
+
+externalSecrets: []
+
+persistentVolumeClaims: []
+
+sidecars:
+  enabled: false
+  containers: []
+
+secretVolume:
+  enabled: false
