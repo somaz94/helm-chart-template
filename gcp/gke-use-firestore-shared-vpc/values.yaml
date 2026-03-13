@@ -98,3 +98,18 @@ sidecars:
 
 secretVolume:
   enabled: false
+
+managedCertificate:
+  domain: ""
+
+frontendConfig:
+  redirectToHttpsEnabled: false
+
+backendConfig:
+  healthCheck:
+    checkIntervalSec: 30
+    timeoutSec: 5
+    healthyThreshold: 1
+    unhealthyThreshold: 3
+    port: 80
+    requestPath: /health

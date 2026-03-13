@@ -38,23 +38,25 @@ spec:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
-          #livenessProbe:
-          #  httpGet:
-          #    path: /
-          #    port: http
+          {{- if .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe }}
           readinessProbe:
-            httpGet:
-              path: /health
-              port: 8080
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.startupProbe }}
+          startupProbe:
+            {{- toYaml .Values.startupProbe | nindent 12 }}
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
-            - name: NODE_ENV
-              value: {{ .Values.envConfig.NODE_ENV }}
-            - name: ENVIRONMENT
-              value: {{ .Values.envConfig.ENVIRONMENT }}
+          {{- range $key, $value := .Values.envConfig }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+          {{- end }}
           envFrom:
           {{- range $config := .Values.configs }}
           - configMapRef:
@@ -92,6 +94,10 @@ spec:
         {{- end }}
       {{- with .Values.volumes }}
       {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.affinity }}
       affinity:
@@ -142,30 +148,31 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 3000
+              containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
-          #livenessProbe:
-          #  httpGet:
-          #    path: /
-          #    port: 8080
-          #readinessProbe:
-          #  httpGet:
-          #    path: /
-          #    port: 8080
+          {{- if .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.startupProbe }}
+          startupProbe:
+            {{- toYaml .Values.startupProbe | nindent 12 }}
+          {{- end }}
           resources:
-            {{- toYaml .Values.stagingResources | nindent 12 }}
+            {{- toYaml (.Values.stagingResources | default .Values.resources) | nindent 12 }}
           env:
-            - name: NODE_ENV
-              value: {{ .Values.stagingEnvConfig.NODE_ENV }}
-            - name: ENVIRONMENT
-              value: {{ .Values.stagingEnvConfig.ENVIRONMENT }}
+          {{- range $key, $value := .Values.stagingEnvConfig }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+          {{- end }}
           envFrom:
           {{- range $config := .Values.configs }}
           - configMapRef:
               name: {{ $config.name }}
-              #{- range $key, $value := $config.data }}
-              #  { $key }}: { $value }}
-              #{- end }}
           {{- end}}
           {{- range $externalSecret := .Values.externalSecrets }}
           - secretRef:
