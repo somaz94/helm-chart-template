@@ -38,3 +38,6 @@ jobs:
             echo "=== Linting $chart ==="
             helm lint "$chart" || true
           done
+
+      - name: upgrade-sync drift check
+        run: ./scripts/upgrade-sync/sync.sh --check

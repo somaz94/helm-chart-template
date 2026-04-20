@@ -30,6 +30,12 @@ This repository contains Helm chart templates specifically designed to work seam
 
 <br/>
 
+## Scripts
+
+- **[scripts/upgrade-sync/](scripts/upgrade-sync/)**: Canonical `upgrade.sh` templates and a sync tool for all helmfile-based charts (`aws/external-dns`, `aws/gitlab-runner-aws`, `gcp/external-dns`). Use `./scripts/upgrade-sync/sync.sh --status` for inventory, `--check` for drift verification (CI-friendly), and `--apply` to propagate canonical changes. See [scripts/upgrade-sync/README.md](scripts/upgrade-sync/README.md) for details.
+
+<br/>
+
 ## Related Repositories
 
 Cluster infrastructure services (ArgoCD, Harbor, monitoring stack, ingress, storage, MetalLB, Nginx Gateway) have moved to [cicd-monitoring](https://github.com/somaz94/cicd-monitoring) — a dedicated repo for production-ready CI/CD and monitoring configurations across AWS, GCP, and on-premise Kubernetes.
