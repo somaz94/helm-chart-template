@@ -25,22 +25,16 @@ This repository contains Helm chart templates specifically designed to work seam
 
 <br/>
 
-## k8s-service
-
-- **argocd**: Helm chart and YAML files for ArgoCD
-- **harbor**: Helm chart for Harbor
-- **monitoring**: Helm charts for monitoring (Prometheus, Grafana, Loki, Thanos, ELK Stack, etc.)
-- **storage-provisioner**: Helm charts for storage provisioners (Local Path, NFS)
-- **ingress-nginx**: Helm chart for ingress-nginx
-- **metallb**: YAML files for MetalLB
-- **nginx-gateway-fabric**: Nginx Gateway Fabric chart
-
-<br/>
-
 ## Onpremise
 
 - **ke-use-nfs-server**: Template for NFS server usage on an on-premise Kubernetes cluster
 - **ke-use-nfs-server-sidecar-fluentbit**: Template for NFS server usage on an on-premise Kubernetes cluster with FluentBit sidecar
+
+<br/>
+
+## Related Repositories
+
+Cluster infrastructure services (ArgoCD, Harbor, monitoring stack, ingress, storage, MetalLB, Nginx Gateway) have moved to [cicd-monitoring](https://github.com/somaz94/cicd-monitoring) — a dedicated repo for production-ready CI/CD and monitoring configurations across AWS, GCP, and on-premise Kubernetes.
 
 <br/>
 
