@@ -1,0 +1,12 @@
+repositories:
+  - name: external-dns
+    url: https://kubernetes-sigs.github.io/external-dns/
+
+releases:
+  - name: external-dns
+    namespace: external-dns
+    createNamespace: true
+    chart: external-dns/external-dns
+    version: 1.18.0
+    values:
+      - values/mgmt.yaml
