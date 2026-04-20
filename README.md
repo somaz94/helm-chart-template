@@ -8,7 +8,6 @@ This repository contains Helm chart templates specifically designed to work seam
 
 - **eks-fargate-use-ebs**: Template for EKS Fargate with EBS storage
 - **eks-fargate-use-efs**: Template for EKS Fargate with EFS file storage
-- **external-secrets**: Chart for managing external secrets (deprecated, see [External Secrets Operator](https://external-secrets.io/))
 - **external-dns**: ExternalDNS chart for AWS Route53 (helmfile)
 - **gitlab-runner-aws**: GitLab Runner chart for AWS (helmfile)
 

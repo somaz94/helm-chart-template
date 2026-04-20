@@ -20,7 +20,7 @@ jobs:
 
       - name: Lint AWS Charts
         run: |
-          for chart in aws/eks-fargate-use-ebs aws/eks-fargate-use-efs aws/external-secrets; do
+          for chart in aws/eks-fargate-use-ebs aws/eks-fargate-use-efs; do
             echo "=== Linting $chart ==="
             helm lint "$chart" || true
           done
