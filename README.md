@@ -15,8 +15,7 @@ This repository contains Helm chart templates specifically designed to work seam
 
 ## GCP
 
-- **gke-use-firestore**: Template for GKE with Firestore
-- **gke-use-firestore-shared-vpc**: Template for GKE with Firestore on shared VPC
+- **gke-use-firestore**: Template for GKE with Firestore (supports default and shared-VPC modes via separate values files)
 - **gke-use-nfs-server**: Template for GKE with NFS server
 - **gke-use-pd-csi**: Template for GKE with PD CSI driver
 - **external-dns**: ExternalDNS chart for GCP Cloud DNS (helmfile)

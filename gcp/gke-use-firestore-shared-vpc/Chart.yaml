@@ -1,6 +1,0 @@
-apiVersion: v2
-name: gke-use-firestore-shared-vpc
-description: A Helm chart for GKE with Firestore on shared VPC
-type: application
-version: 0.1.0
-appVersion: "0.1.0"

@@ -27,7 +27,7 @@ jobs:
 
       - name: Lint GCP Charts
         run: |
-          for chart in gcp/gke-use-firestore gcp/gke-use-firestore-shared-vpc gcp/gke-use-nfs-server gcp/gke-use-pd-csi; do
+          for chart in gcp/gke-use-firestore gcp/gke-use-nfs-server gcp/gke-use-pd-csi; do
             echo "=== Linting $chart ==="
             helm lint "$chart" || true
           done
