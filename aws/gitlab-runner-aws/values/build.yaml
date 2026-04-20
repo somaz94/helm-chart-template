@@ -32,7 +32,7 @@ nodeSelector:
 ## The GitLab Server URL (with protocol) that want to register the runner against
 ## ref: https://docs.gitlab.com/runner/commands/index.html#gitlab-runner-register
 ##
-gitlabUrl: http://somaz.iptime.org:32090/
+gitlabUrl: http://gitlab.example.com:32090/
 
 ## The Runner Token for adding new Runners to the GitLab Server. This must
 ## be retrieved from your GitLab instance. It is the token of an already registered runner.
@@ -133,8 +133,8 @@ runners:
   # runner configuration: https://docs.gitlab.com/runner/configuration/advanced-configuration.html
   config: |
     [[runners]]
-      url = "http://somaz.iptime.org:32090/"
-      clone_url = "http://somaz.iptime.org:32090/"
+      url = "http://gitlab.example.com:32090/"
+      clone_url = "http://gitlab.example.com:32090/"
       [runners.kubernetes]
         namespace = "{{.Release.Namespace}}"
         image = "alpine"
@@ -151,12 +151,12 @@ runners:
 ## ref: https://kubernetes.io/docs/concepts/security/pod-security-standards/
 ##
 securityContext:
-  allowPrivilegeEscalation: true  # 권한 확대를 허용합니다.
-  readOnlyRootFilesystem: false   # 루트 파일 시스템에 쓸 수 있게 합니다.
-  runAsNonRoot: false             # 루트로 실행할 수 있게 합니다.
-  privileged: true               # 권한이 부여된 모드로 실행을 허용합니다.
+  allowPrivilegeEscalation: true  # allow privilege escalation
+  readOnlyRootFilesystem: false   # allow writes to root filesystem
+  runAsNonRoot: false             # allow running as root
+  privileged: true               # allow privileged mode
   capabilities:
-    drop: []                      # 모든 리눅스 캡 능성을 유지합니다.
+    drop: []                      # keep all Linux capabilities
   
 persistentVolumes:
   enabled: false

@@ -56,7 +56,7 @@ ingress:
     alb.ingress.kubernetes.io/group.name: 'somaz'
     #alb.ingress.kubernetes.io/group.order: '2'
   hosts:
-    - host: somaz.link
+    - host: example.com
       paths:
         - path: /
           pathType: Prefix
@@ -111,7 +111,7 @@ sidecars:
       imagePullPolicy: IfNotPresent
       args:
         - "-config.file=/etc/promtail/promtail.yaml"
-        - "-client.url=http://loki.somaz.link/api/prom/push"
+        - "-client.url=http://loki.example.com/api/prom/push"
       volumeMounts:
         - name: shared-data
           mountPath: /etc/slog
@@ -125,7 +125,7 @@ configs:
     datas:
       config.yml: |
         client:
-          url: http://loki.somaz.link/loki/api/v1/push
+          url: http://loki.example.com/loki/api/v1/push
           tls_config:
             insecure_skip_verify: true
         positions:
@@ -174,7 +174,7 @@ configs:
       WEB_LOG_DB_PORT: 3306
       WEB_LOG_DB_NAME: game_log
       LOG_DIRECTORY: /etc/slog/
-      MONGO_LOG_SERVER_HOST: https://mongo-log-somaz.link
+      MONGO_LOG_SERVER_HOST: https://mongo-log-example.com
       MONGO_LOG_SERVER_X_API_KEY: somaz-user
 
 externalSecrets:

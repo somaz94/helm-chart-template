@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: harbor.somaz.link/somaz/game
+  repository: harbor.example.com/somaz/game
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "dev1-6e5ffce" 
@@ -52,7 +52,7 @@ ingress:
     nginx.ingress.kubernetes.io/rewrite-target: /
     cert-manager.io/cluster-issuer: clouddns-issuer # your clusterissuer
   hosts:
-    - host: dev1-game.somaz.link
+    - host: dev1-game.example.com
       paths:
         - path: /
           pathType: Prefix
@@ -63,7 +63,7 @@ ingress:
   tls: 
    - secretName: dev1-game-tls
      hosts:
-       - dev1-game.somaz.link
+       - dev1-game.example.com
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -102,9 +102,9 @@ configs:
     namespace: ke-use-nfs-server-sidecar-fluentbit-dev1
     datas:
       SERVER_PORT: 3000
-      REDIS_DB_HOST: dev1-redis.somaz.link
+      REDIS_DB_HOST: dev1-redis.example.com
       REDIS_DB_PORT: 30480
-      ADMIN_DB_HOST: dev1-db.somaz.link
+      ADMIN_DB_HOST: dev1-db.example.com
       ADMIN_DB_PORT: 30737
       ADMIN_DB_NAME: admin
       ADMIN_DB_ID: somaz
@@ -151,7 +151,7 @@ configs:
         [OUTPUT]
             Name loki
             Match *
-            Host loki.somaz.link
+            Host loki.example.com
             Port 443
             URI /loki/api/v1/push
             tls On
@@ -175,7 +175,7 @@ persistentVolumes:
     reclaimPolicy: Retain
     storageClassName: nfs-client
     path: /data/somaz/gamedata/dev1/data
-    server: nfs-server.somaz.link
+    server: nfs-server.example.com
 
 persistentVolumeClaims:
   - name: ke-use-nfs-server-sidecar-fluentbit-dev1-data-pv-claim
@@ -190,11 +190,11 @@ persistentVolumeClaims:
 certificate:
   enabled: true
   secretName: dev1-game-tls
-  commonName: dev1-game.somaz.link
+  commonName: dev1-game.example.com
   duration: 2160h0m0s # 90d
   renewBefore: 720h0m0s # 30d
   dnsNames:
-  - dev1-game.somaz.link
+  - dev1-game.example.com
   issuerName: route53-issuer
   issuerKind: ClusterIssuer
 
@@ -202,11 +202,11 @@ certificate:
 # certificate:
 #   enabled: true
 #   secretName: dev1-game-tls
-#   commonName: dev1-game.somaz.link
+#   commonName: dev1-game.example.com
 #   duration: 2160h0m0s # 90d
 #   renewBefore: 720h0m0s # 30d
 #   dnsNames:
-#   - dev1-game.somaz.link
+#   - dev1-game.example.com
 #   issuerName: clouddns-issuer
 #   issuerKind: ClusterIssuer
 

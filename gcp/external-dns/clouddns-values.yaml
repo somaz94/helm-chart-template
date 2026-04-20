@@ -68,9 +68,9 @@ sources:
   - ingress
 
 # -- How DNS records are synchronized between sources and providers; available values are `sync` & `upsert-only`.
-# DNS 레코드 동기화 정책
-# 'sync': 관리되지 않는 레코드 삭제
-# 'upsert-only': 레코드 생성/수정만 하고 삭제는 하지 않음
+# DNS record sync policy
+# 'sync': delete unmanaged records
+# 'upsert-only': only create/update records, no deletion
 policy: upsert-only
 
 # -- Specify the registry for storing ownership and labels.
@@ -88,7 +88,7 @@ txtSuffix:
 # -- Limit possible target zones by domain suffixes.
 domainFilters: []
 # domainFilters: 
-#   - "somaz.link"
+#   - "example.com"
 
 # -- Record types to manage (default: A, AAAA, CNAME)
 managedRecordTypes: []

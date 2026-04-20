@@ -69,18 +69,18 @@ To install:
 ```bash
 helm install -n <namespace> <release name> -f values/<helm values file>.yaml gitlab/gitlab-runner
 
-# projectm-client-build: NFS PVC를 사용하여 git clone 캐싱
-# /volume1/nfs/projectm/repo/client -> /builds/client/projectm 마운트
-helm install -n gitlab-runner projectm-client-build-image -f values/projectm-client-build.yaml .
+# example-client-build: cache git clone via NFS PVC
+# mount /volume1/nfs/example-project/repo/client -> /builds/client/example-project
+helm install -n gitlab-runner example-client-build-image -f values/example-client-build.yaml .
 ```
 
 To upgrade:
 ```bash
 helm upgrade -n <namespace> <release name> -f values/<helm values file>.yaml gitlab/gitlab-runner
 
-# projectm-client-build: NFS PVC를 사용하여 git clone 캐싱
-# /volume1/nfs/projectm/repo/client -> /builds/client/projectm 마운트
-helm upgrade -n gitlab-runner projectm-client-build-image -f values/projectm-client-build.yaml .
+# example-client-build: cache git clone via NFS PVC
+# mount /volume1/nfs/example-project/repo/client -> /builds/client/example-project
+helm upgrade -n gitlab-runner example-client-build-image -f values/example-client-build.yaml .
 ```
 
 <br/>

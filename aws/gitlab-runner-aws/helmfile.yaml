@@ -4,7 +4,7 @@ repositories:
 
 releases:
   - name: build-image
-    namespace: luckyday
+    namespace: tertiary-project
     chart: gitlab/gitlab-runner
     version: 0.80.0
     values:

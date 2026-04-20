@@ -4,7 +4,7 @@ repositories:
 
 releases:
   - name: external-dns
-    namespace: luckyday
+    namespace: tertiary-project
     createNamespace: true
     chart: external-dns/external-dns
     version: 1.18.0

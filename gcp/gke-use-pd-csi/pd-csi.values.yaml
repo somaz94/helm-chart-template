@@ -53,7 +53,7 @@ ingress:
     kubernetes.io/ingress.class: "gce"
     networking.gke.io/v1beta1.FrontendConfig: somaz # FrontendConfig name
   hosts:
-    - host: somaz.link # Domain 
+    - host: example.com # Domain 
       paths:
       - pathType: Prefix
         path: "/" 
@@ -75,7 +75,7 @@ resources:
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
 
 managedCertificate:
-  domain: somaz.link # Domain
+  domain: example.com # Domain
 
 backendConfig:
   healthCheck:
@@ -124,7 +124,7 @@ sidecars:
       imagePullPolicy: IfNotPresent
       args:
         - "-config.file=/etc/promtail/promtail.yaml"
-        - "-client.url=http://loki.somaz.link/api/prom/push" # loki URL 
+        - "-client.url=http://loki.example.com/api/prom/push" # loki URL 
       volumeMounts:
         - name: shared-data
           mountPath: /etc/slog
@@ -138,7 +138,7 @@ configs:
     datas:
       config.yml: |
         client:
-          url: http://loki.somaz.link/loki/api/v1/push # loki URL
+          url: http://loki.example.com/loki/api/v1/push # loki URL
           tls_config:
             insecure_skip_verify: true
         positions:
@@ -174,17 +174,17 @@ configs:
     datas:
       SERVER_NAME: somaz
       SERVER_PORT: 8080
-      REDIS_DB_HOST: 10.10.10.10 
+      REDIS_DB_HOST: 192.168.1.10 
       REDIS_DB_PORT: 6379
       DB_CONNECTION_LIMIT: 10
-      ADMIN_DB_HOST: 10.10.10.10
+      ADMIN_DB_HOST: 192.168.1.10
       ADMIN_DB_PORT: 3306
       ADMIN_DB_NAME: admin
-      COMMON_DB_HOST: 10.10.10.10
+      COMMON_DB_HOST: 192.168.1.10
       COMMON_DB_PORT: 3306
       COMMON_DB_NAME: common
       COMMON_DB_SYNCHRONIZE: false
-      MONGO_LOG_SERVER_HOST: https://mongo-log.somaz.link # mongodb URL
+      MONGO_LOG_SERVER_HOST: https://mongo-log.example.com # mongodb URL
       MONGO_LOG_SERVER_X_API_KEY: somaz-super-user
 
 externalSecrets:

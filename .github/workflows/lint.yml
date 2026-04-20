@@ -38,10 +38,3 @@ jobs:
             echo "=== Linting $chart ==="
             helm lint "$chart" || true
           done
-
-      - name: Lint k8s-service Charts
-        run: |
-          for chart in k8s-service/ingress-nginx k8s-service/storage-provisioner/local-path-provisioner; do
-            echo "=== Linting $chart ==="
-            helm lint "$chart" || true
-          done
