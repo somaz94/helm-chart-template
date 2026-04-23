@@ -9,35 +9,36 @@ on:
       - main
 
 jobs:
-  lint:
+  helm-lint:
+    name: Helm Lint (${{ matrix.chart }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        chart:
+          - aws/eks-fargate-use-ebs
+          - aws/eks-fargate-use-efs
+          - gcp/gke-use-firestore
+          - gcp/gke-use-nfs-server
+          - gcp/gke-use-pd-csi
+          - onpremise/ke-use-nfs-server
+          - onpremise/ke-use-nfs-server-sidecar-fluentbit
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Helm Kustomize Lint
+        uses: somaz94/helm-kustomize-lint-action@v1
+        with:
+          chart_path: ${{ matrix.chart }}
+          lint_strict: 'false'
+
+  drift-check:
+    name: upgrade-sync drift check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Helm
-        uses: azure/setup-helm@v4
-
-      - name: Lint AWS Charts
-        run: |
-          for chart in aws/eks-fargate-use-ebs aws/eks-fargate-use-efs; do
-            echo "=== Linting $chart ==="
-            helm lint "$chart" || true
-          done
-
-      - name: Lint GCP Charts
-        run: |
-          for chart in gcp/gke-use-firestore gcp/gke-use-nfs-server gcp/gke-use-pd-csi; do
-            echo "=== Linting $chart ==="
-            helm lint "$chart" || true
-          done
-
-      - name: Lint Onpremise Charts
-        run: |
-          for chart in onpremise/ke-use-nfs-server onpremise/ke-use-nfs-server-sidecar-fluentbit; do
-            echo "=== Linting $chart ==="
-            helm lint "$chart" || true
-          done
-
-      - name: upgrade-sync drift check
+      - name: Run drift check
         run: ./scripts/upgrade-sync/sync.sh --check
